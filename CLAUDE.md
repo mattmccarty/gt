@@ -337,6 +337,58 @@ All documentation in `docs/` follows `00X-topic.md` format:
 
 ---
 
+## DRY and Pattern Reuse
+
+Before writing new utility code, check whether an equivalent already exists. The codebase has clear seams — respect them.
+
+### Where to look first
+
+| Need | Look in | Key items |
+|------|---------|-----------|
+| Path operations | `src/core/path.rs` | `expand_tilde`, `ssh_config_path`, home dir resolution |
+| Identity model | `src/core/identity.rs` | `Identity`, strategy attachment, legacy migration |
+| Provider detection | `src/core/provider.rs` | Provider enums, URL parsing |
+| Repo state | `src/core/repo.rs` | In-repo detection, remote inspection |
+| URL handling | `src/core/url.rs` | Parse/transform git URLs |
+| Config I/O | `src/io/toml_config.rs` | `IdentityConfig`, `StrategyConfig`, `save`, `load` |
+| SSH config I/O | `src/io/ssh_config.rs` | Read/write `~/.ssh/config` stanzas |
+| Git config I/O | `src/io/git_config.rs` | Global and includeIf manipulation |
+| SSH key ops | `src/io/ssh_key.rs` | Generate, add, remove key files |
+| Backups | `src/io/backup.rs` | Timestamped backup creation and restore |
+| Strategy logic | `src/strategy/{ssh_alias,conditional,url_rewrite}.rs` | Apply/remove each strategy type |
+| Scanners | `src/scan/` | Discover existing identities from SSH and git state |
+| Validation | `src/util.rs` | Identity name, directory, scope validators |
+| Errors | `src/error.rs` | `Error` enum, `Result` type alias |
+| Output formatting | `src/cli/output.rs` | `Output` struct (success, dry_run, with_detail) |
+| Interactive prompts | `src/cli/interactive.rs` | Dialoguer wrappers |
+
+### When to extract vs. inline
+
+- **Three near-duplicate blocks is fine.** Copy, don't abstract yet.
+- **Four or more callers of the same pattern** is the signal to extract into the nearest matching module above.
+- **Don't invent a trait** until you have two concrete implementations that both need to satisfy the same API.
+- **Don't create a new module** to hold one function. Find the existing module it belongs in.
+
+### Concrete DRY reminders for this repo
+
+1. **Always call `IdentityConfig::migrate_legacy_strategies()` after loading config.** Every command that reads config must call this. Callers live in `src/cmd/add.rs`, `src/cmd/delete.rs`, etc. When adding a new command that reads config, follow the same pattern — do not re-implement migration logic.
+2. **Normalize directory paths with a trailing slash before writing `gitdir:` conditions.** The helper pattern (trim + append `/`) exists in `src/cmd/add.rs` and `src/cmd/delete.rs`. If a third command needs the same logic, extract it into `src/core/path.rs` rather than copying a third time.
+3. **SSH `User` field is always `git` for Git providers.** Enforced in `src/strategy/ssh_alias.rs`. Never add a new code path that writes a different value.
+4. **Git config section ordering matters**: `[user]` must come before any `[includeIf]`. `src/io/git_config.rs` handles this — route all global git config writes through it.
+5. **Commands return `Result<Output>` and accept `&Context`.** Every command in `src/cmd/` follows this shape. Do not return `String` or `()` from a new command.
+6. **Use `ctx.dry_run` and `ctx.force` consistently.** The `Context` struct already carries these flags. Check them at the top of any command that mutates state; emit `Output::dry_run(...)` when `dry_run` is set.
+
+### Anti-patterns to avoid
+
+- Building your own path resolver instead of using `src/core/path.rs`.
+- Reading or writing `~/.ssh/config` directly instead of going through `src/io/ssh_config.rs`.
+- Catching errors with `unwrap()` or `expect()` in command paths. Propagate via `?` and let `Error` carry the context.
+- Adding a new error variant without considering whether an existing variant covers the case.
+- Writing a new CLI output formatter instead of adding a method to `Output`.
+- Duplicating validation logic that exists in `src/util.rs`.
+
+---
+
 ## Code Conventions
 
 ### Error Handling
@@ -613,39 +665,45 @@ gt id list  # Triggers migration on config read
 
 ---
 
-## Git Commit Conventions
+## Git Workflow
 
-When making commits:
+Full branching, PR, and release conventions live in [`docs/013-branching.md`](docs/013-branching.md). Contributor-facing rules live in [`CONTRIBUTING.md`](CONTRIBUTING.md). Read both before your first commit in a new session.
 
-```bash
-# Feature additions
-git commit -m "Add multi-strategy support for identities
+### Critical rule: no AI/agent attribution
 
-Allows identities to have SSH + Conditional + URL strategies
-simultaneously. Each strategy can have multiple variants.
+Everything that lands in the repo or on GitHub must read as human-authored.
 
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+- **Do not** add `Co-Authored-By: Claude …` trailers to commits.
+- **Do not** add "Generated with Claude Code" footers to PRs, issues, or comments.
+- **Do not** reference AI, LLM, Claude, or agents in code comments, docs, commit messages, issues, PRs, or review comments.
+- **Do not** write "I used an agent to …" in PR bodies or issue descriptions.
 
-# Bug fixes
-git commit -m "Fix conditional include patterns missing trailing slash
+This rule is non-negotiable. If you are about to commit, open a PR, file an issue, or leave a review comment, strip all such references first.
 
-Git requires gitdir: patterns to end with / for subdirectory matching.
-Updated add.rs and delete.rs to normalize directory paths.
+### Commit style
 
-Fixes authentication issues when cloning in subdirectories.
+- Imperative mood subject under 72 chars, capitalized, no trailing period.
+- Body explains *why*, not *what*.
+- Reference issues via trailers (`Fixes #42`).
 
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+Example:
 
-# Documentation
-git commit -m "Restructure documentation with 00X- naming convention
-
-- Renamed BUG_REPORT_TEST_LEAKAGE.md to 011-bug-reports.md
-- Renamed ERROR_REPORTING.md to 012-error-handling.md
-- Updated all cross-references in README files
-- Organized docs into progressive guide structure
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ```
+Add passthrough for unknown git config subcommands
+
+Unknown subcommands under `gt config` now forward to `git config`,
+preserving exit codes and stderr. Explicit gt subcommands continue
+to be handled internally.
+
+Fixes #12
+```
+
+### Branching
+
+- Work on `feat/*`, `fix/*`, `chore/*`, or `docs/*` branches off `main`.
+- Never commit directly to `main`.
+- Squash-merge PRs. Delete the branch after merge.
+- Releases are tagged `vX.Y.Z` from `main`.
 
 ---
 
@@ -654,22 +712,26 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 When working on this project:
 
 - [ ] Read `docs/001-architecture.md` for system overview
+- [ ] Read `CONTRIBUTING.md` and `docs/013-branching.md` before committing
 - [ ] Check `docs/002-strategies.md` for strategy details
+- [ ] Reuse existing modules (see "DRY and Pattern Reuse" table above)
 - [ ] Always normalize directory paths with trailing slashes
 - [ ] Always use `User git` in SSH config for Git providers
 - [ ] Test with `cargo test` before committing
-- [ ] Run `cargo clippy` to catch issues
+- [ ] Run `cargo clippy -- -D warnings` and `cargo fmt --check`
 - [ ] Update documentation if changing behavior
 - [ ] Call `migrate_legacy_strategies()` when reading config
 - [ ] Use `Context` for logging and dry-run support
 - [ ] Return `Result<Output>` from command functions
 - [ ] Follow `00X-` naming for documentation files
+- [ ] **No AI/agent attribution** in commits, PRs, issues, comments, or code
 
 ---
 
 ## Resources
 
 - **Main README:** `README.md`
+- **Contributor Guide:** `CONTRIBUTING.md`
 - **Documentation Index:** `docs/README.md`
 - **Architecture:** `docs/001-architecture.md`
 - **CLI Reference:** `docs/003-cli-reference.md`
@@ -677,6 +739,7 @@ When working on this project:
 - **Development Guide:** `docs/008-development.md`
 - **Bug Reports:** `docs/011-bug-reports.md`
 - **Error Handling:** `docs/012-error-handling.md`
+- **Branching Strategy:** `docs/013-branching.md`
 
 ---
 
@@ -709,5 +772,4 @@ This file should be read at the start of each session to understand:
 ---
 
 **Version:** 0.1.0
-**Last Updated:** 2026-03-21
-**Maintained by:** Claude Code sessions
+**Last Updated:** 2026-04-16
