@@ -1,0 +1,119 @@
+[package]
+name = "gt"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75.0"
+authors = ["Matt McCarty LLC <dev@mattmccarty.net>"]
+description = "Cross-platform Git tool supporting identity management, SSH aliases, conditional includes, and more"
+license = "MIT"
+repository = "https://github.com/mattmccartyllc/gitid"
+homepage = "https://github.com/mattmccartyllc/gitid"
+documentation = "https://github.com/mattmccartyllc/gitid/tree/main/rust/docs"
+readme = "README.md"
+keywords = ["git", "ssh", "identity", "cli", "tool"]
+categories = ["command-line-utilities", "development-tools"]
+
+[features]
+default = ["color", "interactive"]
+color = ["colored"]
+interactive = ["dialoguer"]
+json = []  # JSON output support (always available via serde_json)
+
+[[bin]]
+name = "gt"
+path = "src/main.rs"
+
+[lib]
+name = "gt"
+path = "src/lib.rs"
+
+[dependencies]
+# CLI framework
+clap = { version = "4.5", features = ["derive", "env", "wrap_help"] }
+
+# Configuration
+toml = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# File system and paths
+dirs = "5.0"
+glob = "0.3"
+tempfile = "3.10"
+
+# Regular expressions
+regex = "1.10"
+
+# Random number generation
+rand = "0.8"
+
+# Terminal output
+colored = { version = "2.1", optional = true }
+dialoguer = { version = "0.11", optional = true }
+console = "0.15"
+indicatif = "0.17"
+
+# Logging
+log = "0.4"
+env_logger = "0.11"
+
+# Date/time for backups
+chrono = { version = "0.4", features = ["serde"] }
+
+# CSV output
+csv = "1.3"
+
+# Secure string handling
+secrecy = "0.8"
+
+# Platform-specific
+[target.'cfg(unix)'.dependencies]
+# Unix-specific dependencies (if any)
+
+[target.'cfg(windows)'.dependencies]
+# Windows-specific dependencies (if any)
+
+[dev-dependencies]
+# Testing
+tempfile = "3.10"
+assert_cmd = "2.0"
+predicates = "3.1"
+rstest = "0.18"
+
+# Snapshot testing
+insta = { version = "1.36", features = ["yaml"] }
+
+# Property testing
+proptest = "1.4"
+
+# Mocking
+mockall = "0.12"
+
+[build-dependencies]
+# Build script dependencies (if needed)
+# rustc_version = "0.4"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
+
+[profile.dev]
+# Faster builds in development
+opt-level = 0
+debug = true
+
+[profile.test]
+# Optimize tests slightly for faster execution
+opt-level = 1
+
+# Dependency metadata for cargo-deny
+[package.metadata.deny]
+allow-dependencies = [
+    { name = "openssl", version = "*" },
+]
