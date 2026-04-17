@@ -13,6 +13,16 @@ pub fn execute(opts: &ConfigOpts, ctx: &Context) -> Result<Output> {
         Some(ConfigCommands::Validate) => validate_config(ctx),
         Some(ConfigCommands::Id(id_opts)) => {
             match &id_opts.command {
+                Some(ConfigIdCommands::Add(opts)) => crate::cmd::add::execute(opts, ctx),
+                Some(ConfigIdCommands::Import(opts)) => crate::cmd::import::execute(opts, ctx),
+                Some(ConfigIdCommands::List(opts)) => crate::cmd::list::execute(opts, ctx),
+                Some(ConfigIdCommands::Use(opts)) => crate::cmd::use_::execute(opts, ctx),
+                Some(ConfigIdCommands::Migrate(opts)) => crate::cmd::migrate::execute(opts, ctx),
+                Some(ConfigIdCommands::Key(opts)) => crate::cmd::key::execute(opts, ctx),
+                Some(ConfigIdCommands::Status(opts)) => crate::cmd::status::execute(opts, ctx),
+                Some(ConfigIdCommands::Delete(opts)) => crate::cmd::delete::execute(opts, ctx),
+                Some(ConfigIdCommands::Update(opts)) => crate::cmd::update::execute(opts, ctx),
+                Some(ConfigIdCommands::Fix(opts)) => crate::cmd::fix::execute_id(opts, ctx),
                 Some(ConfigIdCommands::Default { name }) => {
                     match name {
                         Some(id_name) => set_default_identity(id_name, ctx),

@@ -1,4 +1,4 @@
-//! Integration tests for `gt id add` command
+//! Integration tests for `gt config id add` command
 //!
 //! Tests the complete workflow of adding identities
 

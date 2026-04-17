@@ -50,22 +50,6 @@ fn main() -> Result<()> {
         Commands::Stash(opts) => gt::util::execute_git_passthrough("stash", opts),
         Commands::Tag(opts) => gt::util::execute_git_passthrough("tag", opts),
         Commands::Remote(opts) => gt::util::execute_git_passthrough("remote", opts),
-        Commands::Fix(opts) => cmd::fix::execute(opts, &ctx),
-        Commands::Id(id_cmd) => match &id_cmd.command {
-            Some(gt::cli::args::IdCommands::Add(opts)) => cmd::add::execute(opts, &ctx),
-            Some(gt::cli::args::IdCommands::Import(opts)) => cmd::import::execute(opts, &ctx),
-            Some(gt::cli::args::IdCommands::List(opts)) => cmd::list::execute(opts, &ctx),
-            Some(gt::cli::args::IdCommands::Use(opts)) => cmd::use_::execute(opts, &ctx),
-            Some(gt::cli::args::IdCommands::Migrate(opts)) => cmd::migrate::execute(opts, &ctx),
-            Some(gt::cli::args::IdCommands::Key(opts)) => cmd::key::execute(opts, &ctx),
-            Some(gt::cli::args::IdCommands::Status(opts)) => cmd::status::execute(opts, &ctx),
-            Some(gt::cli::args::IdCommands::Delete(opts)) => cmd::delete::execute(opts, &ctx),
-            Some(gt::cli::args::IdCommands::Update(opts)) => cmd::update::execute(opts, &ctx),
-            None => {
-                // No subcommand provided - show current identity
-                cmd::status::execute(&gt::cli::args::StatusOpts { repo: None, all: false }, &ctx)
-            }
-        }
     };
 
     // Handle result and output

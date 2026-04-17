@@ -1,6 +1,6 @@
-//! Implementation of `gt fix` command
+//! Implementation of `gt config id fix` command
 
-use crate::cli::args::{FixCommands, FixIdOpts, FixOpts};
+use crate::cli::args::FixIdOpts;
 use crate::cli::output::Output;
 use crate::cmd::Context;
 use crate::core::provider::Provider;
@@ -9,15 +9,8 @@ use crate::strategy::StrategyType;
 use std::path::PathBuf;
 use std::process::Command;
 
-/// Execute the fix command
-pub fn execute(opts: &FixOpts, ctx: &Context) -> Result<Output> {
-    match &opts.command {
-        FixCommands::Id(id_opts) => execute_fix_id(id_opts, ctx),
-    }
-}
-
 /// Execute the fix id command
-fn execute_fix_id(opts: &FixIdOpts, ctx: &Context) -> Result<Output> {
+pub fn execute_id(opts: &FixIdOpts, ctx: &Context) -> Result<Output> {
     let path = opts
         .path
         .clone()

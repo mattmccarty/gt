@@ -20,8 +20,15 @@ including how to move `Unreleased` into a version section at release time.
 
 ### Changed
 
+- **Breaking:** all identity commands moved from `gt id *` to `gt config id *`. `gt id add`, `list`, `use`, `migrate`, `key`, `status`, `delete`, `update`, `import` are now `gt config id add`, `list`, `use`, `migrate`, `key`, `status`, `delete`, `update`, `import`. Migration: prefix any invocation of `gt id <sub>` with `gt config`.
+- **Breaking:** `gt fix id` moved to `gt config id fix`.
 - `CONTRIBUTING.md` and `docs/013-branching.md` now link to the CHANGELOG convention and the release-notes template rather than describing them inline.
 - `docs/README.md` index extended to include `014-releases.md`.
+
+### Removed
+
+- **Breaking:** top-level `gt id` command tree. No deprecation alias; invocations of `gt id *` now error with `unrecognized subcommand`.
+- **Breaking:** top-level `gt fix` command tree. No deprecation alias; invocations of `gt fix id` now error with `unrecognized subcommand`.
 
 ## [0.1.0] - 2026-03-21
 

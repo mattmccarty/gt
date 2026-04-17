@@ -350,7 +350,7 @@ fn test_strategy_cleanup() {
 }
 
 // =============================================================================
-// Integration with gt id use command
+// Integration with gt config id use command
 // =============================================================================
 
 #[test]
