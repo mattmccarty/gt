@@ -248,7 +248,9 @@ fn push_now(
         )));
     }
 
-    // Build git push command
+    // Inherit stdio so git push renders colors and progress output directly.
+    // Schedule cleanup only runs on success; failure short-circuits with git's
+    // own exit code so shell scripts see the real push failure.
     let mut cmd = Command::new("git");
     cmd.current_dir(repo_path);
     cmd.arg("push");
@@ -259,29 +261,15 @@ fn push_now(
         cmd.arg(arg);
     }
 
-    // Execute
-    let output = cmd.output().map_err(|e| Error::GitCommand {
-        message: format!("Failed to execute git push: {}", e),
+    let status = cmd.status().map_err(|e| Error::GitCommand {
+        message: format!("Failed to execute git push: {e}"),
     })?;
 
-    // Print stdout/stderr
-    if !output.stdout.is_empty() {
-        print!("{}", String::from_utf8_lossy(&output.stdout));
-    }
-    if !output.stderr.is_empty() {
-        eprint!("{}", String::from_utf8_lossy(&output.stderr));
+    if !status.success() {
+        std::process::exit(status.code().unwrap_or(1));
     }
 
-    if !output.status.success() {
-        return Err(Error::GitCommand {
-            message: format!(
-                "git push failed with exit code: {}",
-                output.status.code().unwrap_or(-1)
-            ),
-        });
-    }
-
-    // Clean up schedule if it exists
+    // Clean up schedule if it exists (only on successful push)
     let mut config = ScheduleConfig::load()?;
     if config.remove_schedule(repo_path, branch) {
         config.save()?;
