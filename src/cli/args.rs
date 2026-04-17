@@ -263,7 +263,9 @@ pub struct CloneOpts {
 
 /// Options for `gt config`
 #[derive(Parser, Debug)]
+#[command(after_help = "Unknown subcommands and flag-style invocations are forwarded to `git config`.\n\nExamples:\n  gt config get user.email\n  gt config --global user.email me@example.com\n  gt config --list")]
 pub struct ConfigOpts {
+    /// Config subcommand (gt-native) — anything else is forwarded to `git config`
     #[command(subcommand)]
     pub command: Option<ConfigCommands>,
 }
@@ -271,13 +273,7 @@ pub struct ConfigOpts {
 /// Config subcommands
 #[derive(Subcommand, Debug)]
 pub enum ConfigCommands {
-    /// List all configuration
-    List,
-
-    /// Open config in editor
-    Edit,
-
-    /// Validate configuration
+    /// Validate gt configuration
     Validate,
 
     /// Identity configuration
