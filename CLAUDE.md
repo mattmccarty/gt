@@ -189,29 +189,29 @@ identity_config.migrate_legacy_strategies();
 
 **SSH strategy (basic):**
 ```bash
-gt id add work --email work@company.com --provider github
+gt config id add work --email work@company.com --provider github
 ```
 
 **Conditional strategy (directory-based):**
 ```bash
-gt id add work --strategy conditional --directory ~/work/
+gt config id add work --strategy conditional --directory ~/work/
 ```
 
 **URL rewrite strategy (organization-based):**
 ```bash
-gt id add work --strategy url --scope mycompany
+gt config id add work --strategy url --scope mycompany
 ```
 
 **Multiple strategies on same identity:**
 ```bash
 # First call creates identity with SSH
-gt id add work --email work@company.com --provider github
+gt config id add work --email work@company.com --provider github
 
 # Second call adds conditional to existing identity
-gt id add work --strategy conditional --directory ~/work/
+gt config id add work --strategy conditional --directory ~/work/
 
 # Third call adds URL rewrite to same identity
-gt id add work --strategy url --scope mycompany
+gt config id add work --strategy url --scope mycompany
 ```
 
 ### Deleting Strategy Variants
@@ -219,25 +219,24 @@ gt id add work --strategy url --scope mycompany
 **Delete specific strategy:**
 ```bash
 # Delete conditional for specific directory
-gt id delete work --strategy conditional --directory ~/work/
+gt config id delete work --strategy conditional --directory ~/work/
 
 # Delete URL rewrite for specific scope
-gt id delete work --strategy url --scope mycompany
+gt config id delete work --strategy url --scope mycompany
 ```
 
 **Delete entire identity:**
 ```bash
 # Deletes all strategies and optionally the SSH key
-gt id delete work
+gt config id delete work
 ```
 
 ### Debugging Identity Issues
 
 **Check current identity:**
 ```bash
-gt id          # Shows current identity
-gt id status   # Detailed information
-gt id list     # All identities with strategies
+gt config id status   # Shows current identity / detailed information
+gt config id list     # All identities with strategies
 ```
 
 **Check Git config:**
@@ -537,7 +536,7 @@ git config user.email
 **Solutions:**
 ```bash
 # Check identity configuration
-gt id status <identity>
+gt config id status <identity>
 
 # Review strategy priorities in config.toml
 # Higher priority wins (default: ssh=100, conditional=50, url=25)
@@ -660,7 +659,7 @@ enabled = true
 **Manual migration:**
 ```bash
 # Simply run any gt command
-gt id list  # Triggers migration on config read
+gt config id list  # Triggers migration on config read
 ```
 
 ---

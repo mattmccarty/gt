@@ -37,7 +37,7 @@ The `gt` backup system provides:
 
 ### How It Works
 
-Every time `gt` modifies your SSH config (via `gt id add`, `gt id switch`, etc.), it:
+Every time `gt` modifies your SSH config (via `gt config id add`, `gt id switch`, etc.), it:
 
 1. **Creates a timestamped backup** of the current state
 2. **Applies the modification**
@@ -410,7 +410,7 @@ gt id backup list --validate
 
    # Start fresh
    rm ~/.ssh/config
-   gt id add work --email work@example.com --user-name "Your Name"
+   gt config id add work --email work@example.com --user-name "Your Name"
    ```
 
 ### Restore Fails

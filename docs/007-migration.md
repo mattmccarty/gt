@@ -152,7 +152,7 @@ Configuration saved to ~/.config/gt/config.toml
 
 Next steps:
   1. Review configuration: gt id config --list
-  2. Test an identity: gt id key test work
+  2. Test an identity: gt config id key test work
   3. Set default identity: gt id config default.identity work
 ```
 
@@ -202,7 +202,7 @@ sequenceDiagram
 
     Note over gt: Existing SSH config<br/>remains unchanged
 
-    User->>gt: gt id status
+    User->>gt: gt config id status
     gt-->>User: Identity active: work
 ```
 
@@ -239,7 +239,7 @@ gt id clone git@github.com:company/repo.git --identity work
 ### SSH Alias to Conditional
 
 ```bash
-$ gt id migrate conditional --identity work --dry-run
+$ gt config id migrate conditional --identity work --dry-run
 
 Migration Plan: SSH Alias -> Conditional
 ========================================
@@ -265,7 +265,7 @@ Will perform:
 
 Proceed? This is a dry run, no changes will be made.
 
-$ gt id migrate conditional --identity work
+$ gt config id migrate conditional --identity work
 
 Creating backup: ~/.gitconfig -> ~/.gitconfig.20240115_144000.bak
 
@@ -284,13 +284,13 @@ Creating backup: ~/.gitconfig -> ~/.gitconfig.20240115_144000.bak
 Migration complete!
 
 Note: SSH config entry 'gt-work.github.com' preserved for compatibility.
-      Remove with: gt id migrate conditional --identity work --cleanup
+      Remove with: gt config id migrate conditional --identity work --cleanup
 ```
 
 ### Conditional to URL Rewrite
 
 ```bash
-$ gt id migrate url-rewrite --identity work
+$ gt config id migrate url-rewrite --identity work
 
 Migration Plan: Conditional -> URL Rewrite
 ==========================================
@@ -490,7 +490,7 @@ pub fn transform_url(url: &str, identity: &str, strategy: Strategy) -> Result<St
 ### Migrate All Identities
 
 ```bash
-$ gt id migrate url-rewrite --all
+$ gt config id migrate url-rewrite --all
 
 This will migrate all 5 identities to URL Rewrite strategy.
 
@@ -546,7 +546,7 @@ Issues (12 repositories):
 
 Recommendations:
   - Run 'gt id fix --restore' on repositories with deleted identities
-  - Run 'gt id add temp' to add missing identity
+  - Run 'gt config id add temp' to add missing identity
 ```
 
 ## Rollback Procedures
@@ -603,7 +603,7 @@ gt id scan
 ### Undo Last Migration
 
 ```bash
-$ gt id migrate --undo
+$ gt config id migrate --undo
 
 Last migration:
   Type: SSH Alias -> Conditional
@@ -631,7 +631,7 @@ Did you mean:
   - work-old (ssh-alias)
   - work2 (conditional)
 
-Run 'gt id list' to see all identities.
+Run 'gt config id list' to see all identities.
 Run 'gt id scan' to detect unimported identities.
 ```
 
@@ -674,7 +674,7 @@ The SSH key for identity 'work' is missing.
 
 Options:
   1. Generate new key:
-     gt id key generate work
+     gt config id key generate work
 
   2. Use existing key:
      gt id config --identity work ssh.key_path ~/.ssh/existing_key
@@ -690,10 +690,10 @@ Options:
 gt id scan --deep --verbose
 
 # Verify all identities
-gt id status --all
+gt config id status --all
 
 # Test specific identity
-gt id key test work
+gt config id key test work
 
 # Validate configuration
 gt id config --validate

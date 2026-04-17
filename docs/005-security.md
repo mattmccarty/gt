@@ -494,13 +494,13 @@ gt is designed with minimal attack surface:
 
 1. **Use passphrases on SSH keys**
    ```bash
-   gt id key generate work
+   gt config id key generate work
    # Enter a strong passphrase when prompted
    ```
 
 2. **Use SSH agent for convenience**
    ```bash
-   gt id key activate work
+   gt config id key activate work
    # Key is added to agent, passphrase cached
    ```
 

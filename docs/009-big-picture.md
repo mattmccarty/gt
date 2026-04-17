@@ -182,7 +182,7 @@ sequenceDiagram
     participant GitCfg as Git Config
     participant Backup
 
-    User->>CLI: gt id add work --email work@co.com
+    User->>CLI: gt config id add work --email work@co.com
     CLI->>AddCmd: Execute with options
 
     AddCmd->>Identity: Create identity model
@@ -380,15 +380,15 @@ flowchart TD
 stateDiagram-v2
     [*] --> NotConfigured: User starts
 
-    NotConfigured --> Partial: gt id add (no key)
-    NotConfigured --> Ready: gt id add (with key gen)
+    NotConfigured --> Partial: gt config id add (no key)
+    NotConfigured --> Ready: gt config id add (with key gen)
 
-    Partial --> Ready: gt id key generate
+    Partial --> Ready: gt config id key generate
     Partial --> NotConfigured: gt remove
 
     Ready --> Active: gt id switch
-    Ready --> Ready: gt id key test (pass)
-    Ready --> Error: gt id key test (fail)
+    Ready --> Ready: gt config id key test (pass)
+    Ready --> Error: gt config id key test (fail)
 
     Active --> Ready: gt id switch (different)
     Active --> Active: git operations

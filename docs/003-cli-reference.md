@@ -8,15 +8,15 @@ Complete reference for all gt commands, options, and usage patterns.
 - [Commands Overview](#commands-overview)
 - [gt id init](#gt-init)
 - [gt id scan](#gt-scan)
-- [gt id add](#gt-add)
-- [gt id list](#gt-list)
+- [gt config id add](#gt-add)
+- [gt config id list](#gt-list)
 - [gt id switch](#gt-switch)
 - [gt id clone](#gt-clone)
 - [gt id config](#gt-config)
-- [gt id migrate](#gt-migrate)
+- [gt config id migrate](#gt-migrate)
 - [gt id fix](#gt-fix)
-- [gt id key](#gt-key)
-- [gt id status](#gt-status)
+- [gt config id key](#gt-key)
+- [gt config id status](#gt-status)
 - [Output Formats](#output-formats)
 - [Exit Codes](#exit-codes)
 
@@ -269,14 +269,14 @@ $ gt id scan --output json
 }
 ```
 
-## gt id add
+## gt config id add
 
 Add a new identity.
 
 ### Synopsis
 
 ```bash
-gt id add [OPTIONS] <NAME>
+gt config id add [OPTIONS] <NAME>
 ```
 
 ### Options
@@ -308,16 +308,16 @@ Creates a new identity with the specified configuration. If no SSH key is specif
 
 ```bash
 # Add a work identity for GitHub
-gt id add work --email work@company.com --provider github
+gt config id add work --email work@company.com --provider github
 
 # Add identity with existing key
-gt id add personal --email me@email.com --key ~/.ssh/id_personal
+gt config id add personal --email me@email.com --key ~/.ssh/id_personal
 
 # Add identity for self-hosted GitLab
-gt id add client --email dev@client.com --provider gitlab --host gitlab.client.com
+gt config id add client --email dev@client.com --provider gitlab --host gitlab.client.com
 
 # Add identity without SSH key (for HTTPS use)
-gt id add readonly --email user@email.com --no-key
+gt config id add readonly --email user@email.com --no-key
 ```
 
 ### Validation
@@ -328,14 +328,14 @@ Identity names must:
 - Be 2-32 characters long
 - Not contain the prefix "gt-" (reserved)
 
-## gt id list
+## gt config id list
 
 List all configured identities.
 
 ### Synopsis
 
 ```bash
-gt id list [OPTIONS]
+gt config id list [OPTIONS]
 ```
 
 ### Options
@@ -350,7 +350,7 @@ OPTIONS:
 ### Output
 
 ```bash
-$ gt id list
+$ gt config id list
 
 NAME        PROVIDER    EMAIL                   STRATEGY
 work        github      work@company.com        ssh-alias
@@ -363,7 +363,7 @@ Active (this repo): personal
 ```
 
 ```bash
-$ gt id list --all
+$ gt config id list --all
 
 work
   Provider:   GitHub (github.com)
@@ -583,14 +583,14 @@ gt id config --identity work email work@newcompany.com
 gt id config --edit
 ```
 
-## gt id migrate
+## gt config id migrate
 
 Migrate between identity strategies.
 
 ### Synopsis
 
 ```bash
-gt id migrate [OPTIONS] <TARGET_STRATEGY>
+gt config id migrate [OPTIONS] <TARGET_STRATEGY>
 ```
 
 ### Options
@@ -622,13 +622,13 @@ Migrates identities from one strategy to another. This involves:
 
 ```bash
 # Migrate work identity to conditional includes
-gt id migrate conditional --identity work
+gt config id migrate conditional --identity work
 
 # Preview migration of all identities
-gt id migrate url-rewrite --all --dry-run
+gt config id migrate url-rewrite --all --dry-run
 
 # Full migration including repos
-gt id migrate ssh-alias --all --repos
+gt config id migrate ssh-alias --all --repos
 ```
 
 ### Migration Matrix
@@ -724,14 +724,14 @@ Current:  git@gt-work.github.com:company/repo.git
 Updated:  git@gt-newwork.github.com:company/repo.git
 ```
 
-## gt id key
+## gt config id key
 
 SSH key management subcommands.
 
 ### Synopsis
 
 ```bash
-gt id key <SUBCOMMAND>
+gt config id key <SUBCOMMAND>
 ```
 
 ### Subcommands
@@ -747,10 +747,10 @@ SUBCOMMANDS:
     test        Test key authentication with provider
 ```
 
-### gt id key generate
+### gt config id key generate
 
 ```bash
-gt id key generate [OPTIONS] <IDENTITY>
+gt config id key generate [OPTIONS] <IDENTITY>
 
 OPTIONS:
     -t, --type <TYPE>       Key type: ed25519, rsa [default: ed25519]
@@ -759,29 +759,29 @@ OPTIONS:
     --force                 Overwrite existing key
 ```
 
-### gt id key list
+### gt config id key list
 
 ```bash
-gt id key list [OPTIONS]
+gt config id key list [OPTIONS]
 
 OPTIONS:
     -a, --all               Show all SSH keys (not just gt)
     --identity <ID>         Filter by identity
 ```
 
-### gt id key show
+### gt config id key show
 
 ```bash
-gt id key show <IDENTITY>
+gt config id key show <IDENTITY>
 
 # Output (ready to paste into provider):
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG... gt-work@github.com
 ```
 
-### gt id key test
+### gt config id key test
 
 ```bash
-gt id key test <IDENTITY>
+gt config id key test <IDENTITY>
 
 # Output:
 Testing authentication for identity 'work'...
@@ -793,14 +793,14 @@ Authentication: OK
 Username: work-user
 ```
 
-## gt id status
+## gt config id status
 
 Show current identity status.
 
 ### Synopsis
 
 ```bash
-gt id status [OPTIONS]
+gt config id status [OPTIONS]
 ```
 
 ### Options
@@ -814,7 +814,7 @@ OPTIONS:
 ### Output
 
 ```bash
-$ gt id status
+$ gt config id status
 
 Repository: ~/projects/work-project
 Remote: git@gt-work.github.com:company/project.git
@@ -844,7 +844,7 @@ Human-readable formatted output with colors and tables.
 Machine-readable JSON output:
 
 ```bash
-gt id list --output json
+gt config id list --output json
 ```
 
 ```json
@@ -866,7 +866,7 @@ gt id list --output json
 Tabular CSV output for spreadsheet processing:
 
 ```bash
-gt id list --output csv
+gt config id list --output csv
 ```
 
 ```csv

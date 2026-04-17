@@ -24,22 +24,22 @@ A cross-platform CLI tool for managing multiple Git identities with SSH keys, co
 
 ```bash
 # Add an identity with SSH strategy
-gt id add work --email work@company.com --provider github
+gt config id add work --email work@company.com --provider github
 
 # Add conditional strategy for a directory
-gt id add work --strategy conditional --directory ~/work/
+gt config id add work --strategy conditional --directory ~/work/
 
 # Add URL rewrite strategy for an organization
-gt id add work --strategy url --scope mycompany
+gt config id add work --strategy url --scope mycompany
 
 # Clone with automatic identity detection
 git clone git@github.com:mycompany/repo.git
 
 # Show current identity
-gt id
+gt config id status
 
 # List all identities and their strategies
-gt id list
+gt config id list
 ```
 
 ---
@@ -64,13 +64,13 @@ Download from [GitHub Releases](https://github.com/mattmccartyllc/gitid/releases
 
 | Command | Description |
 |---------|-------------|
-| `gt id` | Show current identity status |
-| `gt id add <name>` | Add new identity or strategy variant |
-| `gt id list` | List all identities with strategies |
-| `gt id use <identity>` | Use identity in current repository |
-| `gt id delete <identity>` | Delete identity or specific strategy |
-| `gt id status` | Show detailed identity information |
-| `gt id key` | Manage SSH keys |
+| `gt config id` | Show identity configuration summary |
+| `gt config id add <name>` | Add new identity or strategy variant |
+| `gt config id list` | List all identities with strategies |
+| `gt config id use <identity>` | Use identity in current repository |
+| `gt config id delete <identity>` | Delete identity or specific strategy |
+| `gt config id status` | Show detailed identity information |
+| `gt config id key` | Manage SSH keys |
 
 **See:** [docs/003-cli-reference.md](docs/003-cli-reference.md) for complete command documentation.
 

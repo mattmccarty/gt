@@ -25,6 +25,7 @@ including how to move `Unreleased` into a version section at release time.
 - **Breaking:** `gt fix id` moved to `gt config id fix`.
 - `CONTRIBUTING.md` and `docs/013-branching.md` now link to the CHANGELOG convention and the release-notes template rather than describing them inline.
 - `docs/README.md` index extended to include `014-releases.md`.
+- `README.md`, `CLAUDE.md`, and the docs under `docs/` (`001`, `003`, `005`, `007`, `008`, `009`, `010`) updated to use the new `gt config id *` command paths. Pre-existing references to subcommands that never existed (`gt id init`, `gt id scan`, `gt id switch`, `gt id clone`, `gt id config`) are unchanged — out of scope here, tracked separately.
 
 ### Removed
 

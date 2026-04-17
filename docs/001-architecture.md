@@ -218,15 +218,15 @@ rust/
 │   │   ├── mod.rs             # Command module root
 │   │   ├── init.rs            # gt id init
 │   │   ├── scan.rs            # gt id scan
-│   │   ├── add.rs             # gt id add
-│   │   ├── list.rs            # gt id list
+│   │   ├── add.rs             # gt config id add
+│   │   ├── list.rs            # gt config id list
 │   │   ├── switch.rs          # gt id switch
 │   │   ├── clone.rs           # gt id clone
 │   │   ├── config.rs          # gt id config
-│   │   ├── migrate.rs         # gt id migrate
+│   │   ├── migrate.rs         # gt config id migrate
 │   │   ├── fix.rs             # gt id fix
-│   │   ├── key.rs             # gt id key (subcommands)
-│   │   └── status.rs          # gt id status
+│   │   ├── key.rs             # gt config id key (subcommands)
+│   │   └── status.rs          # gt config id status
 │   │
 │   ├── core/                  # Core business logic
 │   │   ├── mod.rs             # Core module root
@@ -446,7 +446,7 @@ Each error type includes:
 ```rust
 #[derive(Debug, thiserror::Error)]
 pub enum IdentityError {
-    #[error("Identity '{name}' not found. Run 'gt id list' to see available identities.")]
+    #[error("Identity '{name}' not found. Run 'gt config id list' to see available identities.")]
     NotFound { name: String },
 
     #[error("Identity '{name}' already exists. Use 'gt id config' to modify it.")]
