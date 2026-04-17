@@ -202,7 +202,7 @@ Refs #456
 - [ ] `cargo clippy -- -D warnings` is clean
 - [ ] `cargo fmt --check` passes
 - [ ] Docs updated if behavior changed
-- [ ] CHANGELOG entry added if user-visible
+- [ ] `CHANGELOG.md` entry added under `## [Unreleased]` if user-visible (see [014-releases.md](014-releases.md#changelog-workflow))
 
 ---
 
@@ -228,31 +228,35 @@ Delete feature branches immediately after merge. Stale branches clutter the remo
 
 ## Releases
 
+The full release procedure (CHANGELOG workflow, version bump, release-notes template, checklist, `cargo-release` adoption plan) lives in [014-releases.md](014-releases.md). The short version follows.
+
 ### Versioning
 
 `gt` uses Semantic Versioning. Until the first stable release, all versions are `0.x.y`:
 
-- `MAJOR` (1.0.0+): breaking changes to CLI syntax or config format.
-- `MINOR` (0.x.0): new features, backward-compatible.
-- `PATCH` (0.0.x): bug fixes, backward-compatible.
+- Breaking changes to CLI syntax, config format, or on-disk output (pre-1.0): `MINOR` bump. Reserved for post-1.0: `MAJOR` bump.
+- New features, backward-compatible: `MINOR` bump.
+- Bug fixes, backward-compatible: `PATCH` bump.
 
-### Cutting a release
+See the [version-bump table in 014-releases.md](014-releases.md#version-bump) for the full matrix.
 
-1. Update `Cargo.toml` version and `CHANGELOG.md`.
-2. Open a PR titled `Release vX.Y.Z`.
-3. Merge the PR.
+### Cutting a release (short form)
+
+1. Ensure `main` builds, tests, lints, and formats cleanly.
+2. Open a `release/vX.Y.Z` branch. Bump `Cargo.toml`, move `CHANGELOG.md` `[Unreleased]` entries into a dated `[X.Y.Z]` section, update link references at the bottom of the CHANGELOG.
+3. Open a PR titled `Release vX.Y.Z`. Squash-merge once CI passes.
 4. Tag `main`:
    ```bash
    git checkout main
    git pull --ff-only
-   git tag -a v0.2.0 -m "Release v0.2.0"
-   git push origin v0.2.0
+   git tag -a vX.Y.Z -m "Release vX.Y.Z"
+   git push origin vX.Y.Z
    ```
-5. Create a GitHub Release from the tag with the CHANGELOG entry as the body.
+5. Create a GitHub Release from the tag using the [Release Notes Template](014-releases.md#release-notes-template).
 
 ### Release candidates
 
-For pre-release testing, tag `v0.2.0-rc.1`, `v0.2.0-rc.2`, etc. from `main`. Do not create a `release/*` branch.
+For pre-release testing, tag `vX.Y.Z-rc.1`, `vX.Y.Z-rc.2`, etc. from `main`. Do not create a `release/*` branch for RCs.
 
 ---
 
@@ -288,5 +292,8 @@ If a critical bug ships in a released version:
 
 - [CONTRIBUTING.md](../CONTRIBUTING.md) — overall contribution guide
 - [008-development.md](008-development.md) — developer setup and testing
+- [014-releases.md](014-releases.md) — full release process, CHANGELOG workflow, release-notes template
+- [../CHANGELOG.md](../CHANGELOG.md) — project changelog
+- [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — the CHANGELOG format spec
 - [Semantic Versioning](https://semver.org/)
 - [Conventional Commits](https://www.conventionalcommits.org/) — optional reference for subject prefixes

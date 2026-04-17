@@ -22,6 +22,8 @@ The documentation is organized as a progressive guide, with each document buildi
 | 10 | [010-backup-restore.md](010-backup-restore.md) | Backup and restore system for SSH configs |
 | 11 | [011-bug-reports.md](011-bug-reports.md) | Known issues, bug reports, and resolutions |
 | 12 | [012-error-handling.md](012-error-handling.md) | Error handling, validation, and troubleshooting |
+| 13 | [013-branching.md](013-branching.md) | Branching strategy, merging, and tag mechanics |
+| 14 | [014-releases.md](014-releases.md) | Release process, CHANGELOG workflow, release-notes template |
 
 ## Reading Order
 
