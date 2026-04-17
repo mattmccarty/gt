@@ -232,37 +232,20 @@ pub fn parse_shorthand_date(input: &str) -> Result<String> {
 /// execute_git_command("commit", &["-m", "message"]).unwrap();
 /// ```
 pub fn execute_git_command(subcommand: &str, args: &[String]) -> Result<()> {
-    let mut cmd = Command::new("git");
-    cmd.arg(subcommand);
+    // Inherit stdio so git sees a real TTY and emits colors, and its output
+    // streams directly to the user without a capture-and-replay round trip.
+    // Exit code is propagated verbatim: a caller invoking `gt status` on a
+    // non-repo sees git's exit 128, not a gt-wrapped error.
+    let status = Command::new("git")
+        .arg(subcommand)
+        .args(args)
+        .status()
+        .map_err(|e| Error::GitCommand {
+            message: format!("Failed to execute git command: {e}"),
+        })?;
 
-    for arg in args {
-        cmd.arg(arg);
-    }
-
-    // Execute the command
-    let output = cmd.output().map_err(|e| Error::GitCommand {
-        message: format!("Failed to execute git command: {}", e),
-    })?;
-
-    // Print stdout
-    if !output.stdout.is_empty() {
-        print!("{}", String::from_utf8_lossy(&output.stdout));
-    }
-
-    // Print stderr
-    if !output.stderr.is_empty() {
-        eprint!("{}", String::from_utf8_lossy(&output.stderr));
-    }
-
-    // Check if command was successful
-    if !output.status.success() {
-        return Err(Error::GitCommand {
-            message: format!(
-                "git {} failed with exit code: {}",
-                subcommand,
-                output.status.code().unwrap_or(-1)
-            ),
-        });
+    if !status.success() {
+        std::process::exit(status.code().unwrap_or(1));
     }
 
     Ok(())

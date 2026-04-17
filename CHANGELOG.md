@@ -32,6 +32,10 @@ including how to move `Unreleased` into a version section at release time.
 - **Breaking:** top-level `gt id` command tree. No deprecation alias; invocations of `gt id *` now error with `unrecognized subcommand`.
 - **Breaking:** top-level `gt fix` command tree. No deprecation alias; invocations of `gt fix id` now error with `unrecognized subcommand`.
 
+### Fixed
+
+- Passthrough commands (`gt status`, `gt add`, `gt pull`, `gt fetch`, `gt checkout`, `gt branch`, `gt merge`, `gt rebase`, `gt diff`, `gt log`, `gt stash`, `gt tag`, `gt remote`, `gt reset`, `gt commit`, `gt push`) now render git's colored output correctly. Previously gt captured stdout/stderr into buffers and replayed them, which made git disable colors (its `isatty()` check saw a pipe). Passthroughs now inherit stdio, so git sees a TTY when one is present. Exit codes from git are also propagated verbatim — `gt status` outside a repo now exits 128 (matching `git status`), not 1.
+
 ## [0.1.0] - 2026-03-21
 
 Initial public baseline. Never tagged on GitHub; reconstructed here from the state of the repository at the initial commit so subsequent releases have a documented starting point.
