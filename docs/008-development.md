@@ -714,10 +714,10 @@ gantt
 
 **MVP Features:**
 - `gt id init` - Basic setup
-- `gt id add` - Add identity (SSH alias only)
-- `gt id list` - List identities
+- `gt config id add` - Add identity (SSH alias only)
+- `gt config id list` - List identities
 - `gt id switch` - Switch identity
-- `gt id key generate` - Generate SSH key
+- `gt config id key generate` - Generate SSH key
 - `gt id scan` - Basic detection
 
 ### Phase 2: Enhanced Features
@@ -727,7 +727,7 @@ gantt
 **Features:**
 - `gt id clone` - Clone with identity
 - `gt id fix` - URL fixing
-- `gt id migrate` - Strategy migration
+- `gt config id migrate` - Strategy migration
 - Conditional includes strategy
 - URL rewrite strategy
 - JSON/CSV output formats
@@ -739,8 +739,8 @@ gantt
 **Timeline:** 4-6 weeks after Phase 2
 
 **Features:**
-- `gt id key test` - Test authentication
-- `gt id status` - Detailed status
+- `gt config id key test` - Test authentication
+- `gt config id status` - Detailed status
 - Interactive mode improvements
 - Custom provider support
 - Azure DevOps support
