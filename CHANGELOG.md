@@ -17,7 +17,7 @@ including how to move `Unreleased` into a version section at release time.
 - `CHANGELOG.md` with a Keep a Changelog format and reconstructed `[0.1.0]` baseline.
 - `docs/014-releases.md` covering the release-notes template, step-by-step release checklist, version-bump procedure, and the decision to adopt `cargo-release`.
 - `.github/pull_request_template.md` to enforce the CHANGELOG and quality checklist on every PR.
-- `gt config` now forwards unknown subcommands and flag-style invocations to `git config`, making gt a drop-in superset. Examples: `gt config get user.email`, `gt config set user.email x`, `gt config --global user.name`, `gt config unset remote.origin.url`. Exit codes, stdout, and stderr from `git config` are preserved. gt-native subcommands (`list`, `edit`, `validate`, `id`) take precedence over same-named `git config` subcommands.
+- `gt config` now forwards unknown subcommands and flag-style invocations to `git config`, making gt a drop-in superset. Examples: `gt config get user.email`, `gt config set user.email x`, `gt config list`, `gt config edit`, `gt config --global user.name`, `gt config unset remote.origin.url`. Exit codes, stdout, and stderr from `git config` are preserved. gt-native under `gt config`: bare `gt config` shows the gt configuration summary, `gt config validate` validates gt's config, and `gt config id *` manages identities. No gt-native command shadows a `git config` subcommand.
 
 ### Changed
 

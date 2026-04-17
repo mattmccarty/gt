@@ -273,13 +273,7 @@ pub struct ConfigOpts {
 /// Config subcommands
 #[derive(Subcommand, Debug)]
 pub enum ConfigCommands {
-    /// List all configuration
-    List,
-
-    /// Open config in editor
-    Edit,
-
-    /// Validate configuration
+    /// Validate gt configuration
     Validate,
 
     /// Identity configuration

@@ -8,8 +8,6 @@ use crate::error::{Error, Result};
 /// Execute the config command
 pub fn execute(opts: &ConfigOpts, ctx: &Context) -> Result<Output> {
     match &opts.command {
-        Some(ConfigCommands::List) => list_config(ctx),
-        Some(ConfigCommands::Edit) => edit_config(ctx),
         Some(ConfigCommands::Validate) => validate_config(ctx),
         Some(ConfigCommands::Id(id_opts)) => {
             match &id_opts.command {
@@ -35,14 +33,11 @@ pub fn execute(opts: &ConfigOpts, ctx: &Context) -> Result<Output> {
                 }
             }
         }
-        None => {
-            // No subcommand - default to list
-            list_config(ctx)
-        }
+        None => show_config_summary(ctx),
     }
 }
 
-fn list_config(ctx: &Context) -> Result<Output> {
+fn show_config_summary(ctx: &Context) -> Result<Output> {
     let config = ctx.require_config()?;
 
     Ok(Output::success("Configuration")
@@ -63,14 +58,6 @@ fn list_config(ctx: &Context) -> Result<Output> {
                 .unwrap_or(&"ssh-alias".to_string()),
         )
         .with_detail("identities", config.identities.len().to_string()))
-}
-
-fn edit_config(ctx: &Context) -> Result<Output> {
-    // TODO: Open config in editor
-    Ok(Output::success(format!(
-        "Edit config at: {}",
-        ctx.config_path.display()
-    )))
 }
 
 fn validate_config(ctx: &Context) -> Result<Output> {

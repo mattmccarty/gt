@@ -81,12 +81,13 @@ fn main() -> Result<()> {
 /// Returns the trailing args to forward to `git config`, or `None` if clap
 /// should handle the invocation.
 ///
-/// gt-native under `config`: `list`, `edit`, `validate`, `id`, `help`,
-/// plus bare `gt config` (shows the gt config summary) and `gt config --help`.
-/// Anything else after `config` (including flag-style invocations like
-/// `gt config --global user.email x`) is forwarded verbatim.
+/// gt-native under `config`: `validate`, `id`, `help`, plus bare `gt config`
+/// (shows the gt config summary) and `gt config --help`. Anything else after
+/// `config` — including `list`, `edit`, every other `git config` subcommand,
+/// and flag-style invocations like `gt config --global user.email x` — is
+/// forwarded verbatim.
 fn detect_git_config_passthrough(args: &[String]) -> Option<Vec<String>> {
-    const NATIVE: &[&str] = &["list", "edit", "validate", "id", "help"];
+    const NATIVE: &[&str] = &["validate", "id", "help"];
 
     let config_pos = args
         .iter()
@@ -129,12 +130,24 @@ mod tests {
 
     #[test]
     fn native_subcommands_are_not_passthrough() {
-        for sub in &["list", "edit", "validate", "id", "help"] {
+        for sub in &["validate", "id", "help"] {
             assert!(
                 detect_git_config_passthrough(&args(&["gt", "config", sub])).is_none(),
                 "native subcommand {sub} should not passthrough"
             );
         }
+    }
+
+    #[test]
+    fn list_and_edit_are_now_passthrough() {
+        assert_eq!(
+            detect_git_config_passthrough(&args(&["gt", "config", "list"])),
+            Some(vec!["list".into()]),
+        );
+        assert_eq!(
+            detect_git_config_passthrough(&args(&["gt", "config", "edit"])),
+            Some(vec!["edit".into()]),
+        );
     }
 
     #[test]
