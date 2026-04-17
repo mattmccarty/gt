@@ -98,7 +98,7 @@ Fixes #12
 - [ ] `cargo clippy -- -D warnings` is clean
 - [ ] `cargo fmt --check` passes
 - [ ] Docs updated if behavior changed
-- [ ] CHANGELOG entry added for user-visible changes
+- [ ] `CHANGELOG.md` entry added under `## [Unreleased]` for user-visible changes (see [docs/014-releases.md](docs/014-releases.md#changelog-workflow))
 
 ### PR description
 
@@ -261,6 +261,8 @@ Use the `type:feature` label. A maintainer will respond with feedback or a green
 ## See Also
 
 - [docs/013-branching.md](docs/013-branching.md) — full branching, merging, and release conventions
+- [docs/014-releases.md](docs/014-releases.md) — release process, CHANGELOG workflow, release-notes template
+- [CHANGELOG.md](CHANGELOG.md) — project changelog
 - [docs/008-development.md](docs/008-development.md) — developer setup and testing guide
 - [docs/001-architecture.md](docs/001-architecture.md) — system architecture
 - [docs/README.md](docs/README.md) — documentation index
