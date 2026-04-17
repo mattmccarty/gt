@@ -67,18 +67,11 @@ pub enum OutputFormat {
 /// Available top-level subcommands
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    /// Identity management commands
-    #[command(name = "id")]
-    Id(IdCommand),
-
     /// Get or set configuration values
     Config(ConfigOpts),
 
     /// Clone repository with automatic identity detection
     Clone(CloneOpts),
-
-    /// Fix repository URLs and configurations
-    Fix(FixOpts),
 
     /// Git commit with enhanced date support (passthrough to git commit)
     Commit(CommitOpts),
@@ -133,45 +126,7 @@ pub enum Commands {
     // Future: Statistics commands
 }
 
-/// Identity management subcommands
-#[derive(Parser, Debug)]
-pub struct IdCommand {
-    #[command(subcommand)]
-    pub command: Option<IdCommands>,
-}
-
-/// Identity subcommands
-#[derive(Subcommand, Debug)]
-pub enum IdCommands {
-    /// Add a new identity
-    Add(AddOpts),
-
-    /// Import an existing unmanaged identity
-    Import(ImportOpts),
-
-    /// List all configured identities
-    List(ListOpts),
-
-    /// Use an identity for the current repository
-    Use(UseOpts),
-
-    /// Migrate between identity strategies
-    Migrate(MigrateOpts),
-
-    /// SSH key management
-    Key(KeyOpts),
-
-    /// Show current identity status
-    Status(StatusOpts),
-
-    /// Delete an identity and its SSH key
-    Delete(DeleteOpts),
-
-    /// Update an existing identity
-    Update(UpdateOpts),
-}
-
-/// Options for `gt id add`
+/// Options for `gt config id add`
 #[derive(Parser, Debug)]
 pub struct AddOpts {
     /// Identity name
@@ -219,7 +174,7 @@ pub struct AddOpts {
     pub directory: Option<String>,
 }
 
-/// Options for `gt id import`
+/// Options for `gt config id import`
 #[derive(Parser, Debug)]
 pub struct ImportOpts {
     /// Identity name to import
@@ -242,7 +197,7 @@ pub struct ImportOpts {
     pub strategy: Option<StrategyArg>,
 }
 
-/// Options for `gt id list`
+/// Options for `gt config id list`
 #[derive(Parser, Debug)]
 pub struct ListOpts {
     /// Show all identities (including SSH-only/unmanaged)
@@ -262,7 +217,7 @@ pub struct ListOpts {
     pub show_keys: bool,
 }
 
-/// Options for `gt id use`
+/// Options for `gt config id use`
 #[derive(Parser, Debug)]
 pub struct UseOpts {
     /// Identity to use
@@ -339,6 +294,36 @@ pub struct ConfigIdOpts {
 /// Identity config subcommands
 #[derive(Subcommand, Debug)]
 pub enum ConfigIdCommands {
+    /// Add a new identity
+    Add(AddOpts),
+
+    /// Import an existing unmanaged identity
+    Import(ImportOpts),
+
+    /// List all configured identities
+    List(ListOpts),
+
+    /// Use an identity for the current repository
+    Use(UseOpts),
+
+    /// Migrate between identity strategies
+    Migrate(MigrateOpts),
+
+    /// SSH key management
+    Key(KeyOpts),
+
+    /// Show current identity status
+    Status(StatusOpts),
+
+    /// Delete an identity and its SSH key
+    Delete(DeleteOpts),
+
+    /// Update an existing identity
+    Update(UpdateOpts),
+
+    /// Fix repository URLs and configurations
+    Fix(FixIdOpts),
+
     /// Get or set default identity
     Default {
         /// Identity name to set as default
@@ -346,7 +331,7 @@ pub enum ConfigIdCommands {
     },
 }
 
-/// Options for `gt id migrate`
+/// Options for `gt config id migrate`
 #[derive(Parser, Debug)]
 pub struct MigrateOpts {
     /// Identity name to migrate (interactive selection if not provided)
@@ -369,21 +354,7 @@ pub struct MigrateOpts {
     pub yes: bool,
 }
 
-/// Options for `gt fix`
-#[derive(Parser, Debug)]
-pub struct FixOpts {
-    #[command(subcommand)]
-    pub command: FixCommands,
-}
-
-/// Fix subcommands
-#[derive(Subcommand, Debug)]
-pub enum FixCommands {
-    /// Fix identity configuration for repositories
-    Id(FixIdOpts),
-}
-
-/// Options for `gt fix id`
+/// Options for `gt config id fix`
 #[derive(Parser, Debug)]
 pub struct FixIdOpts {
     /// Repository or directory path
@@ -540,7 +511,7 @@ pub struct GitPassthroughOpts {
     pub args: Vec<String>,
 }
 
-/// Options for `gt id key`
+/// Options for `gt config id key`
 #[derive(Parser, Debug)]
 pub struct KeyOpts {
     #[command(subcommand)]
@@ -621,7 +592,7 @@ pub enum KeyCommands {
     },
 }
 
-/// Options for `gt id status`
+/// Options for `gt config id status`
 #[derive(Parser, Debug)]
 pub struct StatusOpts {
     /// Repository path
@@ -633,7 +604,7 @@ pub struct StatusOpts {
     pub all: bool,
 }
 
-/// Options for `gt id delete`
+/// Options for `gt config id delete`
 #[derive(Parser, Debug)]
 pub struct DeleteOpts {
     /// Identity name to delete
@@ -660,7 +631,7 @@ pub struct DeleteOpts {
     pub keep_key: bool,
 }
 
-/// Options for `gt id update`
+/// Options for `gt config id update`
 #[derive(Parser, Debug)]
 pub struct UpdateOpts {
     /// Identity name to update
