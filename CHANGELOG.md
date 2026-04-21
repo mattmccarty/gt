@@ -18,6 +18,11 @@ including how to move `Unreleased` into a version section at release time.
 - `gt config id use --clear` removes the active-identity state file.
 - `gt config id` summary and `gt config id status` surface the active identity when set.
 
+### Changed
+
+- `gt clone` now honors the active identity (set via `gt config id use` outside a repo) when no `--id` override is passed and before falling back to URL-based auto-detection. Clone precedence is: `--id` flag, active identity, URL auto-detect, default.
+- `gt clone` passes `-c user.name` / `-c user.email` to the clone subprocess and sets `GIT_SSH_COMMAND` (with forward-slash-normalized key paths) when the resolved identity has an SSH key. Makes conditional-only identities usable at clone time and prevents a cwd's conditional include from overriding the chosen identity's key.
+
 ## [0.2.0] - 2026-04-17
 
 ### Added
