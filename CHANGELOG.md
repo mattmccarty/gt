@@ -12,6 +12,8 @@ including how to move `Unreleased` into a version section at release time.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-04-21
+
 ### Added
 
 - `gt config id use <name>` now succeeds when run outside any git repository, recording the selection in `<config_dir>/active-id.toml` so subsequent `gt clone` invocations can honor it. Previously errored with "Not inside a Git repository."
@@ -97,6 +99,7 @@ Initial public baseline. Never tagged on GitHub; reconstructed here from the sta
 - `gt push` scheduling is a *lock*, not an *executor*: the pre-push hook prevents premature pushes but nothing fires the push when the scheduled time arrives. Tracked in [#5](https://github.com/mattmccarty/gt/issues/5).
 - `gt id *` and `gt fix id` are planned to move under `gt config id *` as a breaking change in the next release. Tracked in [#4](https://github.com/mattmccarty/gt/issues/4).
 
-[Unreleased]: https://github.com/mattmccarty/gt/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/mattmccarty/gt/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/mattmccarty/gt/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/mattmccarty/gt/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/mattmccarty/gt/releases/tag/v0.1.0
