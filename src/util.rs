@@ -135,10 +135,15 @@ pub fn looks_like_secret(s: &str) -> bool {
         || s.len() > 40 && s.chars().all(|c| c.is_ascii_alphanumeric())
 }
 
-/// Generates a timestamp string for backups
+/// Generates a timestamp string for backups.
+///
+/// Resolution is millisecond, not second, so two backups taken within the
+/// same wall-clock second produce distinct filenames. Second-resolution
+/// timestamps cause later backups to silently overwrite earlier ones via
+/// `std::fs::copy`, which the caller has no way to detect.
 #[must_use]
 pub fn backup_timestamp() -> String {
-    chrono::Utc::now().format("%Y%m%d_%H%M%S").to_string()
+    chrono::Utc::now().format("%Y%m%d_%H%M%S_%3f").to_string()
 }
 
 /// Parses shorthand date syntax and converts to ISO 8601 format for git
