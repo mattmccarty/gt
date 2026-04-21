@@ -27,6 +27,7 @@ use crate::cli::output::Output;
 use crate::cmd::Context;
 use crate::core::path;
 use crate::error::{Error, Result};
+use crate::io::active_id::ActiveIdentity;
 use crate::io::git_config;
 use crate::strategy::conditional::ConditionalStrategy;
 use std::path::Path;
@@ -162,6 +163,13 @@ pub fn execute(opts: &StatusOpts, ctx: &Context) -> Result<Output> {
         if let Some(ref dir) = status.conditional_directory {
             output = output.with_detail("conditional_directory", dir);
         }
+    }
+
+    // Always surface the active identity when set, independent of `--all`.
+    // It affects `gt clone` outside a repo and is easy to forget; showing it
+    // in `status` gives users one place to verify their declared intent.
+    if let Ok(Some(active)) = ActiveIdentity::load() {
+        output = output.with_detail("active_identity", &active.identity);
     }
 
     Ok(output)

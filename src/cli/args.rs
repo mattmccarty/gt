@@ -221,7 +221,8 @@ pub struct ListOpts {
 #[derive(Parser, Debug)]
 pub struct UseOpts {
     /// Identity to use
-    pub identity: String,
+    #[arg(required_unless_present = "clear")]
+    pub identity: Option<String>,
 
     /// Repository path (defaults to current directory)
     #[arg(short, long)]
@@ -237,6 +238,11 @@ pub struct UseOpts {
     /// For conditional strategy, this sets up the directory mapping
     #[arg(short, long)]
     pub global: bool,
+
+    /// Clear the active identity set by a previous outside-of-repo invocation.
+    /// Has no effect on repository-local or conditional configurations.
+    #[arg(long, conflicts_with_all = ["identity", "repo", "directory", "global"])]
+    pub clear: bool,
 }
 
 /// Options for `gt clone`

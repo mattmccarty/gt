@@ -4,6 +4,7 @@ use crate::cli::args::{ConfigCommands, ConfigIdCommands, ConfigOpts};
 use crate::cli::output::Output;
 use crate::cmd::Context;
 use crate::error::{Error, Result};
+use crate::io::active_id::ActiveIdentity;
 
 /// Execute the config command
 pub fn execute(opts: &ConfigOpts, ctx: &Context) -> Result<Output> {
@@ -75,8 +76,15 @@ fn show_identity_config(ctx: &Context) -> Result<Output> {
         .as_ref()
         .map_or("not set".to_string(), |id| id.clone());
 
+    let active_identity = ActiveIdentity::load()
+        .ok()
+        .flatten()
+        .map(|a| a.identity)
+        .unwrap_or_else(|| "not set".to_string());
+
     Ok(Output::success("Identity Configuration")
         .with_detail("default", &default_identity)
+        .with_detail("active", &active_identity)
         .with_detail("count", &config.identities.len().to_string()))
 }
 

@@ -6,6 +6,7 @@ use crate::cmd::Context;
 use crate::core::identity::Identity;
 use crate::core::provider::Provider;
 use crate::error::{Error, Result};
+use crate::io::active_id::ActiveIdentity;
 use crate::io::toml_config::IdentityConfig;
 use crate::strategy::conditional::ConditionalStrategy;
 use std::path::PathBuf;
@@ -13,60 +14,81 @@ use std::process::Command;
 
 /// Execute the use command
 pub fn execute(opts: &UseOpts, ctx: &Context) -> Result<Output> {
+    // --clear runs before touching config: it only removes the active-identity
+    // state file and never requires an identity argument.
+    if opts.clear {
+        return execute_clear_active(ctx);
+    }
+
     let config = ctx.require_config()?;
+
+    // Clap's `required_unless_present = "clear"` should prevent this, but
+    // defensively unwrap so a direct programmatic caller sees a clear error.
+    let identity_name = opts.identity.as_deref().ok_or_else(|| Error::InputRequired {
+        field: "identity".to_string(),
+    })?;
 
     // Verify identity exists
     let identity_config = config
         .identities
-        .get(&opts.identity)
+        .get(identity_name)
         .ok_or_else(|| Error::IdentityNotFound {
-            name: opts.identity.clone(),
+            name: identity_name.to_string(),
         })?;
 
     // Handle conditional (directory-based) setup
     if opts.directory.is_some() || opts.global {
-        return execute_conditional(opts, ctx, identity_config, &opts.identity);
+        return execute_conditional(opts, ctx, identity_config, identity_name);
     }
 
-    // Standard repository-based use
-    execute_repository(opts, ctx, identity_config)
-}
-
-/// Execute the use command for a specific repository
-fn execute_repository(
-    opts: &UseOpts,
-    ctx: &Context,
-    identity_config: &IdentityConfig,
-) -> Result<Output> {
-    // Determine repository path
+    // Determine repository path (explicit --repo or cwd) to decide whether to
+    // take the in-repo path or fall through to the active-identity state file.
     let repo_path = if let Some(ref path) = opts.repo {
         path.clone()
     } else {
         std::env::current_dir()?
     };
 
-    // Verify it's a git repository
-    if !repo_path.join(".git").exists() {
+    if repo_path.join(".git").exists() {
+        return execute_repository(ctx, identity_config, identity_name, &repo_path);
+    }
+
+    // If the user passed --repo but that path is not a repo, the invocation
+    // was explicit about a target; preserve today's hard failure rather than
+    // silently writing the active-identity file instead.
+    if opts.repo.is_some() {
         return Err(Error::NotARepository);
     }
 
+    // Outside any repo: record the intent in the active-identity state file so
+    // subsequent `gt clone` invocations can honor it.
+    execute_active_identity(ctx, identity_name)
+}
+
+/// Execute the use command for a specific repository
+fn execute_repository(
+    ctx: &Context,
+    identity_config: &IdentityConfig,
+    identity_name: &str,
+    repo_path: &PathBuf,
+) -> Result<Output> {
     ctx.info(&format!(
         "Using identity '{}' for repository at {}",
-        opts.identity,
+        identity_name,
         repo_path.display()
     ));
 
     if ctx.dry_run {
         return Ok(Output::dry_run(format!(
             "Would use identity '{}' for repository at {}",
-            opts.identity,
+            identity_name,
             repo_path.display()
         )));
     }
 
     // Set local git config (user.name and user.email)
-    set_git_config(&repo_path, "user.name", &identity_config.name, ctx)?;
-    set_git_config(&repo_path, "user.email", &identity_config.email, ctx)?;
+    set_git_config(repo_path, "user.name", &identity_config.name, ctx)?;
+    set_git_config(repo_path, "user.email", &identity_config.email, ctx)?;
 
     if !ctx.quiet {
         eprintln!("✓ Set local git user.name = {}", identity_config.name);
@@ -83,14 +105,14 @@ fn execute_repository(
 
     if let Some(key_path) = key_path {
         let ssh_command = format!("ssh -i \"{}\" -o IdentitiesOnly=yes", key_path);
-        set_git_config(&repo_path, "core.sshCommand", &ssh_command, ctx)?;
+        set_git_config(repo_path, "core.sshCommand", &ssh_command, ctx)?;
         if !ctx.quiet {
             eprintln!("✓ Set local git core.sshCommand to use {}", key_path);
         }
     } else {
         // No key for this identity — clear any stale override from a prior
         // `gt id use` call so we don't authenticate as the wrong identity.
-        unset_git_config(&repo_path, "core.sshCommand", ctx)?;
+        unset_git_config(repo_path, "core.sshCommand", ctx)?;
     }
 
     // Update remote URLs based on SSH hostname alias configuration
@@ -104,18 +126,77 @@ fn execute_repository(
 
     if use_hostname_alias {
         // SSH hostname alias enabled: update URLs to use identity-specific SSH host
-        update_remote_urls_ssh(&repo_path, &opts.identity, provider, ctx)?;
+        update_remote_urls_ssh(repo_path, identity_name, provider, ctx)?;
     } else {
         // No hostname alias: restore URLs to standard provider hostname
-        restore_remote_urls(&repo_path, provider, ctx)?;
+        restore_remote_urls(repo_path, provider, ctx)?;
     }
 
     Ok(Output::success(format!(
         "Now using identity '{}' in repository",
-        opts.identity
+        identity_name
     ))
-    .with_detail("identity", &opts.identity)
+    .with_detail("identity", identity_name)
     .with_detail("repository", &repo_path.display().to_string()))
+}
+
+/// Record the active identity in the state file under `config_dir()`.
+///
+/// Applies when `gt config id use <name>` runs outside any git repository.
+/// `gt clone` consults this file when no explicit `--id` is passed.
+fn execute_active_identity(ctx: &Context, identity_name: &str) -> Result<Output> {
+    if ctx.dry_run {
+        return Ok(Output::dry_run(format!(
+            "Would set active identity to '{}'",
+            identity_name
+        ))
+        .with_detail("identity", identity_name)
+        .with_detail("scope", "active"));
+    }
+
+    let active = ActiveIdentity {
+        identity: identity_name.to_string(),
+    };
+    active.save()?;
+
+    if !ctx.quiet {
+        eprintln!(
+            "Set active identity: {} (applies to `gt clone` outside a repo)",
+            identity_name
+        );
+        eprintln!("Clear with: gt config id use --clear");
+    }
+
+    Ok(Output::success(format!(
+        "Active identity set to '{}'",
+        identity_name
+    ))
+    .with_detail("identity", identity_name)
+    .with_detail("scope", "active"))
+}
+
+/// Remove the active-identity state file.
+fn execute_clear_active(ctx: &Context) -> Result<Output> {
+    if ctx.dry_run {
+        return Ok(Output::dry_run("Would clear active identity"));
+    }
+
+    let cleared = ActiveIdentity::clear()?;
+
+    if !ctx.quiet {
+        if cleared {
+            eprintln!("Cleared active identity");
+        } else {
+            eprintln!("No active identity was set");
+        }
+    }
+
+    let message = if cleared {
+        "Cleared active identity"
+    } else {
+        "No active identity was set"
+    };
+    Ok(Output::success(message).with_detail("scope", "active"))
 }
 
 /// Execute the use command for conditional strategy (directory-based)
