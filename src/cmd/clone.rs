@@ -4,6 +4,7 @@ use crate::cli::args::CloneOpts;
 use crate::cli::output::Output;
 use crate::cmd::Context;
 use crate::error::{Error, Result};
+use crate::io::active_id::ActiveIdentity;
 
 /// Execute the clone command
 pub fn execute(opts: &CloneOpts, ctx: &Context) -> Result<Output> {
@@ -11,12 +12,17 @@ pub fn execute(opts: &CloneOpts, ctx: &Context) -> Result<Output> {
 
     ctx.info(&format!("Cloning {}", opts.url));
 
-    // Auto-detect identity or use provided --id
+    // Resolve identity with three-tier precedence:
+    //   1. `--id` flag (explicit override)
+    //   2. Active identity set via `gt config id use` outside a repo
+    //   3. URL-based auto-detection (falls back to default internally)
     let identity_name = if let Some(ref id) = opts.id {
         ctx.info(&format!("Using identity '{}' (override)", id));
         id.clone()
+    } else if let Some(active) = resolve_active_identity(ctx) {
+        ctx.info(&format!("Using active identity '{}'", active));
+        active
     } else {
-        // Smart auto-detection based on URL
         ctx.debug("Auto-detecting identity from URL and configuration");
         detect_identity_from_url(&opts.url, ctx)?
     };
@@ -68,13 +74,36 @@ pub fn execute(opts: &CloneOpts, ctx: &Context) -> Result<Output> {
         }
     };
 
-    // Execute git clone
+    // Execute git clone, injecting the identity so authentication and
+    // attribution come from it rather than the ambient cwd. `-c user.*`
+    // sets attribution for any in-process git work. `GIT_SSH_COMMAND`
+    // selects the identity's key on the clone subprocess, which matters
+    // when the URL hasn't been rewritten to an SSH host alias (for example
+    // conditional-strategy identities with no SSH alias).
     ctx.info(&format!("Cloning to {}", dest_path.display()));
-    let output = std::process::Command::new("git")
+    let mut cmd = std::process::Command::new("git");
+    cmd.arg("-c")
+        .arg(format!("user.name={}", identity_config.name))
+        .arg("-c")
+        .arg(format!("user.email={}", identity_config.email))
         .arg("clone")
         .arg(&clone_url)
-        .arg(&dest_path)
-        .output()?;
+        .arg(&dest_path);
+
+    if let Some(key_path) = identity_config
+        .ssh
+        .as_ref()
+        .and_then(|s| s.key_path.as_deref())
+    {
+        let ssh_command = build_git_ssh_command(key_path);
+        ctx.debug(&format!(
+            "Setting GIT_SSH_COMMAND for clone: {}",
+            ssh_command
+        ));
+        cmd.env("GIT_SSH_COMMAND", ssh_command);
+    }
+
+    let output = cmd.output()?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
@@ -277,4 +306,71 @@ fn restore_url(url: &str, provider: &str) -> Result<String> {
 
     // If we can't transform it, return as-is
     Ok(url.to_string())
+}
+
+/// Load the active identity from the state file, if set and still valid.
+///
+/// Returns `None` when the file is absent, unreadable, or names an identity
+/// that no longer exists in the main config (for example after the user
+/// deleted the identity without running `--clear`). A warning is logged in
+/// the stale case so users understand why their declared intent isn't being
+/// applied.
+fn resolve_active_identity(ctx: &Context) -> Option<String> {
+    let active = ActiveIdentity::load().ok().flatten()?;
+
+    let config = ctx.config.as_ref()?;
+    if config.identities.contains_key(&active.identity) {
+        Some(active.identity)
+    } else {
+        ctx.info(&format!(
+            "Active identity '{}' no longer exists in config; ignoring. \
+             Clear with `gt config id use --clear`.",
+            active.identity
+        ));
+        None
+    }
+}
+
+/// Build the `GIT_SSH_COMMAND` value for a clone using the given key path.
+///
+/// Paths are normalized to forward slashes so the command works on Windows,
+/// where backslashes in the key path break shell-parsed arguments inside
+/// `ssh -i "..."`. Git-for-Windows accepts forward slashes natively.
+fn build_git_ssh_command(key_path: &str) -> String {
+    let normalized = key_path.replace('\\', "/");
+    format!("ssh -i \"{}\" -o IdentitiesOnly=yes", normalized)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn git_ssh_command_wraps_unix_path() {
+        let cmd = build_git_ssh_command("/home/user/.ssh/id_gt_work");
+        assert_eq!(
+            cmd,
+            "ssh -i \"/home/user/.ssh/id_gt_work\" -o IdentitiesOnly=yes"
+        );
+    }
+
+    #[test]
+    fn git_ssh_command_normalizes_windows_backslashes() {
+        let cmd = build_git_ssh_command(r"C:\Users\matt\.ssh\id_gt_work");
+        assert_eq!(
+            cmd,
+            "ssh -i \"C:/Users/matt/.ssh/id_gt_work\" -o IdentitiesOnly=yes"
+        );
+    }
+
+    #[test]
+    fn git_ssh_command_handles_path_with_spaces() {
+        // Spaces survive because the key path is quoted; a subsequent shell
+        // split on the outer command string will keep the quoted segment intact.
+        let cmd = build_git_ssh_command(r"C:\Users\Matt McCarty\.ssh\id_gt_work");
+        assert_eq!(
+            cmd,
+            "ssh -i \"C:/Users/Matt McCarty/.ssh/id_gt_work\" -o IdentitiesOnly=yes"
+        );
+    }
 }
