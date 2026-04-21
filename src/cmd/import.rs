@@ -93,7 +93,7 @@ pub fn execute(opts: &ImportOpts, ctx: &Context) -> Result<Output> {
         .with_detail("email", &email)
         .with_detail("user_name", &user_name)
         .with_detail("provider", &provider)
-        .with_detail("strategy", &strategy.to_string()));
+        .with_detail("strategy", strategy.to_string()));
     }
 
     // Get SSH key path from detected identity
@@ -138,7 +138,7 @@ pub fn execute(opts: &ImportOpts, ctx: &Context) -> Result<Output> {
         .with_detail("email", &email)
         .with_detail("user_name", &user_name)
         .with_detail("provider", &provider)
-        .with_detail("strategy", &strategy.to_string());
+        .with_detail("strategy", strategy.to_string());
 
     if let Some(key_path) = &detected.key_path {
         output = output.with_detail("ssh_key", key_path);

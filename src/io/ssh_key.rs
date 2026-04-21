@@ -231,7 +231,7 @@ pub fn verify_key(path: &Path) -> Result<bool> {
 
 /// Read the public key content
 pub fn read_public_key(path: &Path) -> Result<String> {
-    let pub_path = if path.extension().map_or(false, |e| e == "pub") {
+    let pub_path = if path.extension().is_some_and(|e| e == "pub") {
         path.to_owned()
     } else {
         path.with_extension("pub")

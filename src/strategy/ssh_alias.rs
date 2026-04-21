@@ -267,7 +267,7 @@ impl Strategy for SshAliasStrategy {
         Ok(repo
             .parsed_url
             .as_ref()
-            .map_or(false, |url| url.host == expected_host))
+            .is_some_and(|url| url.host == expected_host))
     }
 
     fn validate(&self) -> Result<ValidationResult> {

@@ -99,7 +99,7 @@ pub fn execute_id(opts: &FixIdOpts, ctx: &Context) -> Result<Output> {
         identity_name
     ))
     .with_detail("identity", &identity_name)
-    .with_detail("path", &path.display().to_string()))
+    .with_detail("path", path.display().to_string()))
 }
 
 fn restore_urls(opts: &FixIdOpts, path: &PathBuf, ctx: &Context) -> Result<Output> {
@@ -130,7 +130,7 @@ fn restore_urls(opts: &FixIdOpts, path: &PathBuf, ctx: &Context) -> Result<Outpu
     restore_remote_urls(path, &provider, ctx)?;
 
     Ok(Output::success("URLs restored to original format")
-        .with_detail("path", &path.display().to_string()))
+        .with_detail("path", path.display().to_string()))
 }
 
 /// Set a git config value in the repository (local, not global)

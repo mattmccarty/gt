@@ -11,6 +11,7 @@ use crate::strategy::{ApplyResult, SetupStep, Strategy, StrategyType, Validation
 /// URL rewriting strategy
 pub struct UrlRewriteStrategy {
     /// Scope for URL matching
+    #[allow(dead_code)]
     scope: UrlScope,
 }
 

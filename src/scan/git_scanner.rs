@@ -59,7 +59,7 @@ pub fn scan_git_config() -> Result<GitScanResult> {
 
         // Try to read the include file
         let expanded_path = crate::util::expand_path(std::path::Path::new(&include.path)).ok();
-        let file_exists = expanded_path.as_ref().map_or(false, |p| p.exists());
+        let file_exists = expanded_path.as_ref().is_some_and(|p| p.exists());
 
         // Read email and name from include file
         let (email, name) = if let Some(ref path) = expanded_path {

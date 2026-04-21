@@ -221,9 +221,7 @@ fn add_strategy_variant(
         .is_some();
 
     if already_exists {
-        ctx.info(&format!(
-            "Strategy variant already exists, replacing with new configuration"
-        ));
+        ctx.info("Strategy variant already exists, replacing with new configuration");
     }
 
     // Add the strategy (will replace if discriminator matches)

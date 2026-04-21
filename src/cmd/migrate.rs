@@ -118,7 +118,7 @@ fn migrate_legacy(opts: &MigrateOpts, ctx: &Context) -> Result<Output> {
         migrated_count,
         if migrated_count == 1 { "y" } else { "ies" }
     ))
-    .with_detail("migrated", &migrated_count.to_string()))
+    .with_detail("migrated", migrated_count.to_string()))
 }
 
 /// Select identity interactively

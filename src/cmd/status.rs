@@ -161,9 +161,9 @@ pub fn execute(opts: &StatusOpts, ctx: &Context) -> Result<Output> {
             output = output.with_detail("remote", url);
         }
 
-        output = output.with_detail("config_level", &status.level.to_string());
-        output = output.with_detail("in_repository", &status.in_repository.to_string());
-        output = output.with_detail("managed", &status.is_managed.to_string());
+        output = output.with_detail("config_level", status.level.to_string());
+        output = output.with_detail("in_repository", status.in_repository.to_string());
+        output = output.with_detail("managed", status.is_managed.to_string());
 
         if let Some(ref dir) = status.conditional_directory {
             output = output.with_detail("conditional_directory", dir);
@@ -237,10 +237,7 @@ pub fn detect_identity(dir: &Path, ctx: &Context) -> Result<IdentityStatus> {
 /// Detect identity from repository-level git config
 fn detect_repository_identity(repo_path: &Path, ctx: &Context) -> Result<Option<IdentityStatus>> {
     // Try to get local (repository) config
-    let email = match get_git_config_local(repo_path, "user.email", ctx) {
-        Ok(email) => Some(email),
-        Err(_) => None,
-    };
+    let email = get_git_config_local(repo_path, "user.email", ctx).ok();
 
     // If no local email, this isn't a repository-level identity
     if email.is_none() {

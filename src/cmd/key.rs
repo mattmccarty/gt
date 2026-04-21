@@ -61,7 +61,7 @@ fn generate(
         // Use existing key path
         id.key_path
             .as_ref()
-            .map(|p| PathBuf::from(p))
+            .map(PathBuf::from)
             .unwrap_or_else(|| PathBuf::from(format!("~/.ssh/id_gt_{}", identity)))
     } else {
         // New identity, create default path
@@ -198,8 +198,8 @@ fn generate(
 
     Ok(
         Output::success(format!("SSH key generated for '{}'", identity))
-            .with_detail("key_path", &expanded_key_path.to_string_lossy().to_string())
-            .with_detail("key_type", &key_type.to_string()),
+            .with_detail("key_path", expanded_key_path.to_string_lossy().to_string())
+            .with_detail("key_type", key_type.to_string()),
     )
 }
 
@@ -315,7 +315,7 @@ fn show(identity: &str, ctx: &Context) -> Result<Output> {
     }
 
     Ok(Output::success(format!("Public key for '{}'", identity))
-        .with_detail("key_path", &pub_key_path.to_string_lossy().to_string()))
+        .with_detail("key_path", pub_key_path.to_string_lossy().to_string()))
 }
 
 fn test(identity: &str, ctx: &Context) -> Result<Output> {

@@ -83,7 +83,7 @@ fn show_identity_config(ctx: &Context) -> Result<Output> {
     Ok(Output::success("Identity Configuration")
         .with_detail("default", &default_identity)
         .with_detail("active", &active_identity)
-        .with_detail("count", &config.identities.len().to_string()))
+        .with_detail("count", config.identities.len().to_string()))
 }
 
 fn get_default_identity(ctx: &Context) -> Result<Output> {

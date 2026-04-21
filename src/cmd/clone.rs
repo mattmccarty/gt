@@ -134,7 +134,7 @@ pub fn execute(opts: &CloneOpts, ctx: &Context) -> Result<Output> {
     ))
     .with_detail("identity", &identity_name)
     .with_detail("url", &opts.url)
-    .with_detail("path", &dest_path.display().to_string()))
+    .with_detail("path", dest_path.display().to_string()))
 }
 
 /// Detect identity from URL using smart heuristics
@@ -195,7 +195,7 @@ fn detect_identity_from_url(url: &str, ctx: &Context) -> Result<String> {
             .identities
             .keys()
             .next()
-            .map(|k| k.clone())
+            .cloned()
             .unwrap_or_else(|| "default".to_string())
     });
 
