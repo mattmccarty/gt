@@ -137,6 +137,30 @@ cargo fmt --check
 
 All four must pass. If anything fails, fix on a separate PR before continuing.
 
+#### Waivers
+
+In rare cases a pre-flight check fails on `main` for reasons unrelated to the release content. v0.2.0 shipped with three such waivers (later closed as #16, #17, #18); the pattern is worth codifying so future releases handle it consistently rather than improvising.
+
+A waiver is acceptable only when **all** of the following hold:
+
+1. The failure pre-exists the release content and is unrelated to it.
+2. It is tracked in a dedicated GitHub issue.
+3. The release PR carries a pre-flight status table that lists each check, its disposition (`pass` / `fail` / `waive`), and the ticket link for any waiver.
+4. Shipping with the failure does not prevent users from building the tagged commit.
+
+A waiver is **not** acceptable for anything introduced by the release content itself, or for failures that block building. In those cases, fix on a separate PR before continuing.
+
+Example pre-flight status table (adapt the disposition column per release):
+
+| Check | Result | Disposition |
+|-------|--------|-------------|
+| `cargo build` | pass | |
+| `cargo test` | pass | |
+| `cargo clippy -- -D warnings` | pass | |
+| `cargo fmt --check` | pass | |
+
+If a disposition is `waive`, that row cites the tracking issue. Waivers are the exception, not the default; if more than one check is waived in consecutive releases, stop and fix the underlying problem before cutting another release.
+
 ### 2. Prepare the release PR
 
 ```bash
@@ -217,6 +241,18 @@ See the [CHANGELOG entry for vX.Y.Z](https://github.com/mattmccarty/gt/blob/main
 
 See [README.md](https://github.com/mattmccarty/gt/blob/main/README.md#installation).
 ```
+
+### CHANGELOG anchor format
+
+The anchor under `## Full changes` is the GitHub slug of the CHANGELOG heading, not a literal template. GitHub strips brackets, drops dots in the version, and substitutes the literal `-` plus its surrounding spaces with three hyphens. Concrete examples:
+
+| CHANGELOG heading | GitHub anchor |
+|---|---|
+| `## [0.2.0] - 2026-04-17` | `#020---2026-04-17` |
+| `## [0.3.0] - 2026-04-21` | `#030---2026-04-21` |
+| `## [1.0.0] - 2027-01-15` | `#100---2027-01-15` |
+
+If the anchor is wrong, the link renders but scrolls to the top of the CHANGELOG rather than to the version section, which is easy to miss on review.
 
 ### What goes in Highlights vs. CHANGELOG
 
