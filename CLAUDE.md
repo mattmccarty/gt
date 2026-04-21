@@ -770,5 +770,5 @@ This file should be read at the start of each session to understand:
 
 ---
 
-**Version:** 0.2.0
-**Last Updated:** 2026-04-17
+**Version:** 0.3.0
+**Last Updated:** 2026-04-21

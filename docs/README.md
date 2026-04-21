@@ -69,4 +69,4 @@ Colors (when supported):
 
 ## Version
 
-This documentation corresponds to gt version 0.2.0.
+This documentation corresponds to gt version 0.3.0.
