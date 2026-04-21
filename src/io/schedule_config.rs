@@ -78,7 +78,7 @@ impl ScheduleConfig {
             return Ok(Self::default());
         }
 
-        let contents = fs::read_to_string(&path).map_err(|e| Error::Io(e))?;
+        let contents = fs::read_to_string(&path).map_err(Error::Io)?;
         let config: ScheduleConfig = toml::from_str(&contents)?;
         Ok(config)
     }

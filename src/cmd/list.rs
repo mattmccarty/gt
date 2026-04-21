@@ -92,7 +92,7 @@ fn show_detailed_breakdown(identities: &[detector::DetectedIdentity], ctx: &Cont
     for identity in identities {
         by_strategy
             .entry(identity.strategy)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(identity);
     }
 
@@ -152,7 +152,7 @@ fn list_from_config(
         let mut identity_clone = identity.clone();
         identity_clone.migrate_legacy_strategies();
 
-        let is_default = default_id.map_or(false, |default| default == name);
+        let is_default = default_id == Some(name);
         let provider_display = Provider::from_name(&identity_clone.provider).to_string();
 
         // If no strategies, show a single row with "none"
@@ -204,13 +204,11 @@ fn list_from_config(
                 let scope_display = match strategy.strategy_type.as_str() {
                     "conditional" => strategy
                         .directory
-                        .as_ref()
-                        .map(|d| d.clone())
+                        .clone()
                         .unwrap_or_else(|| "-".to_string()),
                     "url" => strategy
                         .scope
-                        .as_ref()
-                        .map(|s| s.clone())
+                        .clone()
                         .unwrap_or_else(|| "(all)".to_string()),
                     "ssh" => {
                         if strategy.use_hostname_alias {
@@ -289,11 +287,7 @@ fn list_from_detected(
             .map(|p| p.to_string())
             .unwrap_or_else(|| "unknown".to_string());
 
-        let email = identity
-            .email
-            .as_ref()
-            .map(|e| e.clone())
-            .unwrap_or_else(|| "-".to_string());
+        let email = identity.email.clone().unwrap_or_else(|| "-".to_string());
 
         let source = match &identity.source {
             detector::DetectionSource::SshConfig { host } => format!("ssh:{}", host),
@@ -321,11 +315,7 @@ fn list_from_detected(
         if opts.show_keys {
             row.insert(
                 4,
-                identity
-                    .key_path
-                    .as_ref()
-                    .map(|k| k.clone())
-                    .unwrap_or_else(|| "-".to_string()),
+                identity.key_path.clone().unwrap_or_else(|| "-".to_string()),
             );
         }
 
@@ -380,7 +370,7 @@ fn list_merged(
         let mut identity_clone = identity.clone();
         identity_clone.migrate_legacy_strategies();
 
-        let is_default = default_id.map_or(false, |default| default == name);
+        let is_default = default_id == Some(name);
         let provider_display = Provider::from_name(&identity_clone.provider).to_string();
 
         // If no strategies, show a single row with "none"
@@ -434,13 +424,11 @@ fn list_merged(
                 let scope_display = match strategy.strategy_type.as_str() {
                     "conditional" => strategy
                         .directory
-                        .as_ref()
-                        .map(|d| d.clone())
+                        .clone()
                         .unwrap_or_else(|| "-".to_string()),
                     "url" => strategy
                         .scope
-                        .as_ref()
-                        .map(|s| s.clone())
+                        .clone()
                         .unwrap_or_else(|| "(all)".to_string()),
                     "ssh" => {
                         if strategy.use_hostname_alias {
@@ -508,11 +496,7 @@ fn list_merged(
             .map(|p| p.to_string())
             .unwrap_or_else(|| "unknown".to_string());
 
-        let email = identity
-            .email
-            .as_ref()
-            .map(|e| e.clone())
-            .unwrap_or_else(|| "-".to_string());
+        let email = identity.email.clone().unwrap_or_else(|| "-".to_string());
 
         let source = match &identity.source {
             detector::DetectionSource::SshConfig { host } => format!("ssh:{}", host),
@@ -541,11 +525,7 @@ fn list_merged(
         if opts.show_keys {
             row.insert(
                 5,
-                identity
-                    .key_path
-                    .as_ref()
-                    .map(|k| k.clone())
-                    .unwrap_or_else(|| "-".to_string()),
+                identity.key_path.clone().unwrap_or_else(|| "-".to_string()),
             );
         }
 

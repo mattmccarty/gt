@@ -211,8 +211,7 @@ impl Output {
     }
 
     fn print_json(&self) -> Result<()> {
-        let json = serde_json::to_string_pretty(self)
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+        let json = serde_json::to_string_pretty(self).map_err(std::io::Error::other)?;
         println!("{}", json);
         Ok(())
     }
@@ -272,7 +271,7 @@ impl TableBuilder {
         let row: HashMap<String, String> = self
             .columns
             .iter()
-            .zip(values.into_iter())
+            .zip(values)
             .map(|(k, v)| (k.clone(), v.into()))
             .collect();
         self.rows.push(row);

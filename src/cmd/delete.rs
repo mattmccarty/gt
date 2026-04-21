@@ -87,7 +87,7 @@ fn delete_strategy_variant(opts: &DeleteOpts, ctx: &Context) -> Result<Output> {
 
     if !removed {
         return Err(Error::ConfigInvalid {
-            message: format!("Failed to remove strategy variant"),
+            message: "Failed to remove strategy variant".to_string(),
         });
     }
 
@@ -304,9 +304,9 @@ fn delete_full_identity(opts: &DeleteOpts, ctx: &Context) -> Result<Output> {
             .with_detail("identity_deleted", "true")
             .with_detail(
                 "strategies_deleted",
-                &identity_config.strategies.len().to_string(),
+                identity_config.strategies.len().to_string(),
             )
-            .with_detail("key_deleted", &key_deleted.to_string()),
+            .with_detail("key_deleted", key_deleted.to_string()),
     )
 }
 

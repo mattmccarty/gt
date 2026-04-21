@@ -295,8 +295,7 @@ where
         }
     }
 
-    let mut line_count = 0;
-    let mut lines_vec: Vec<String> = lines.collect();
+    let lines_vec: Vec<String> = lines.collect();
     let total_lines = lines_vec.len();
 
     // If there are only a few lines, just print them all
@@ -313,13 +312,12 @@ where
     while idx < total_lines {
         // Display a page of lines
         let end_idx = std::cmp::min(idx + lines_per_page, total_lines);
-        for i in idx..end_idx {
-            writeln!(stdout, "{}", lines_vec[i]).map_err(|e| Error::GitCommand {
+        for line in &lines_vec[idx..end_idx] {
+            writeln!(stdout, "{}", line).map_err(|e| Error::GitCommand {
                 message: format!("Failed to write to stdout: {}", e),
             })?;
         }
         idx = end_idx;
-        line_count += end_idx - (end_idx - lines_per_page).max(0);
 
         // If we've shown all lines, break
         if idx >= total_lines {

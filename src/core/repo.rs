@@ -141,7 +141,7 @@ impl Repo {
     pub fn is_url_modified(&self) -> bool {
         self.parsed_url
             .as_ref()
-            .map_or(false, |url| url.is_modified())
+            .is_some_and(|url| url.is_modified())
     }
 
     /// Get the detected identity from the URL

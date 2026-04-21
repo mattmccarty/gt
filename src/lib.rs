@@ -25,10 +25,24 @@
 //! # Ok::<(), gt::error::Error>(())
 //! ```
 
-#![warn(missing_docs)]
+// `missing_docs` and `clippy::pedantic` are allowed pre-1.0 while the public
+// API is still shifting. The pedantic group subsumes `missing_errors_doc`,
+// `missing_panics_doc`, `must_use_candidate`, `uninlined_format_args`, and
+// many other subjective lints that collectively produce hundreds of warnings
+// on the current codebase. Re-enable at 1.0 when the surface freezes and
+// back-fill docs and pedantic cleanups at that time. See issue #17 for
+// history.
+#![allow(missing_docs)]
 #![warn(clippy::all)]
-#![warn(clippy::pedantic)]
+#![allow(clippy::pedantic)]
 #![allow(clippy::module_name_repetitions)]
+// Inherent `to_string`, `from_str`, and `default` methods on a handful of
+// types shadow the standard `Display`, `FromStr`, and `Default` traits. The
+// types are still in flux pre-1.0; converting them requires API decisions
+// (infallible `Default`, `FromStr::Err` type, etc.) that are deferred until
+// the surface freezes. Tracked alongside the rest of issue #17.
+#![allow(clippy::inherent_to_string)]
+#![allow(clippy::should_implement_trait)]
 
 pub mod cli;
 pub mod cmd;

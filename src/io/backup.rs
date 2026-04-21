@@ -98,14 +98,12 @@ impl BackupManager {
 
     /// Rotate old backups, keeping only the most recent ones
     fn rotate(&self, backup_dir: &Path, original_name: &str) -> Result<()> {
-        let pattern = format!("{}.*.bak", original_name);
-
         let mut backups: Vec<_> = std::fs::read_dir(backup_dir)?
             .filter_map(|e| e.ok())
             .filter(|e| {
-                e.file_name().to_str().map_or(false, |n| {
-                    n.starts_with(original_name) && n.ends_with(".bak")
-                })
+                e.file_name()
+                    .to_str()
+                    .is_some_and(|n| n.starts_with(original_name) && n.ends_with(".bak"))
             })
             .collect();
 
@@ -148,9 +146,9 @@ impl BackupManager {
         let mut backups: Vec<_> = std::fs::read_dir(&backup_dir)?
             .filter_map(|e| e.ok())
             .filter(|e| {
-                e.file_name().to_str().map_or(false, |n| {
-                    n.starts_with(original_name) && n.ends_with(".bak")
-                })
+                e.file_name()
+                    .to_str()
+                    .is_some_and(|n| n.starts_with(original_name) && n.ends_with(".bak"))
             })
             .map(|e| e.path())
             .collect();

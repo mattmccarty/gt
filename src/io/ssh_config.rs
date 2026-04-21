@@ -140,6 +140,7 @@ pub struct SshConfig {
     /// Parse warnings (malformed entries, suspicious directives, etc.)
     pub warnings: Vec<ParseWarning>,
     /// Raw content for sections we don't parse
+    #[allow(dead_code)]
     raw_sections: Vec<String>,
 }
 

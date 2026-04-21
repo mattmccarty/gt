@@ -141,7 +141,7 @@ fn execute_repository(
         identity_name
     ))
     .with_detail("identity", identity_name)
-    .with_detail("repository", &repo_path.display().to_string()))
+    .with_detail("repository", repo_path.display().to_string()))
 }
 
 /// Record the active identity in the state file under `config_dir()`.

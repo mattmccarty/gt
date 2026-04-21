@@ -112,7 +112,39 @@ pub fn execute(opts: &CommitOpts, ctx: &Context) -> Result<Output> {
                 head_date, now
             ));
 
-            if date_value.is_none() {
+            if let Some(user_date_str) = date_value.clone() {
+                if !force {
+                    // User specified --date, validate it's not before HEAD.
+                    let user_date = if let Ok(parsed) = parse_shorthand_date(&user_date_str) {
+                        DateTime::parse_from_rfc3339(&parsed)
+                            .ok()
+                            .map(|dt| dt.with_timezone(&Utc))
+                    } else {
+                        DateTime::parse_from_rfc3339(&user_date_str)
+                            .ok()
+                            .map(|dt| dt.with_timezone(&Utc))
+                    };
+
+                    if let Some(user_dt) = user_date {
+                        if user_dt < head_date {
+                            let local_head = head_date.with_timezone(&chrono::Local);
+                            let local_user = user_dt.with_timezone(&chrono::Local);
+                            return Err(Error::ConfigInvalid {
+                                message: format!(
+                                    "Specified date ({}) is before HEAD commit date ({})\n\n\
+                                    This would create commits out of chronological order.\n\n\
+                                    To commit with earlier date anyway, use --force:\n  \
+                                    gt --force commit -m \"message\" --date={}",
+                                    local_user.format("%Y-%m-%d %I:%M:%S%P %z"),
+                                    local_head.format("%Y-%m-%d %I:%M:%S%P %z"),
+                                    user_date_str
+                                ),
+                            });
+                        }
+                    }
+                }
+                // else: --force set, skip the chronology check.
+            } else {
                 // No --date specified
                 if force {
                     // --force: use current time (may create out-of-order commits)
@@ -142,41 +174,6 @@ pub fn execute(opts: &CommitOpts, ctx: &Context) -> Result<Output> {
                             local_head.format("%Y-%m-%d %I:%M:%S%P %z")
                         ),
                     });
-                }
-            } else if !force {
-                // User specified --date, validate it's not before HEAD
-                // Parse the user's date value to check chronological order
-                let user_date_str = date_value.as_ref().unwrap();
-
-                // Try to parse as shorthand first
-                let user_date = if let Ok(parsed) = parse_shorthand_date(user_date_str) {
-                    // Parse the ISO string back to DateTime
-                    DateTime::parse_from_rfc3339(&parsed)
-                        .ok()
-                        .map(|dt| dt.with_timezone(&Utc))
-                } else {
-                    // Try parsing as various date formats git accepts
-                    DateTime::parse_from_rfc3339(user_date_str)
-                        .ok()
-                        .map(|dt| dt.with_timezone(&Utc))
-                };
-
-                if let Some(user_dt) = user_date {
-                    if user_dt < head_date {
-                        let local_head = head_date.with_timezone(&chrono::Local);
-                        let local_user = user_dt.with_timezone(&chrono::Local);
-                        return Err(Error::ConfigInvalid {
-                            message: format!(
-                                "Specified date ({}) is before HEAD commit date ({})\n\n\
-                                This would create commits out of chronological order.\n\n\
-                                To commit with earlier date anyway, use --force:\n  \
-                                gt --force commit -m \"message\" --date={}",
-                                local_user.format("%Y-%m-%d %I:%M:%S%P %z"),
-                                local_head.format("%Y-%m-%d %I:%M:%S%P %z"),
-                                user_date_str
-                            ),
-                        });
-                    }
                 }
             }
         }
@@ -372,6 +369,6 @@ pub fn execute_list(
         paginate_output(lines.into_iter(), 20, None)?;
         Ok(Output::success(""))
     } else {
-        Ok(Output::success(&lines.join("\n")))
+        Ok(Output::success(lines.join("\n")))
     }
 }

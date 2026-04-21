@@ -90,7 +90,7 @@ fn execute_reset_commits(opts: &ResetOpts, ctx: &Context) -> Result<Output> {
 
     // Reset to initial commit (soft reset - keeps changes)
     ctx.info(&format!("Resetting to initial commit: {}", initial_commit));
-    execute_git_command("reset", &[initial_commit.clone()])?;
+    execute_git_command("reset", std::slice::from_ref(&initial_commit))?;
 
     // Clear scheduled pushes for this repo/branch
     let mut schedule_config = ScheduleConfig::load()?;

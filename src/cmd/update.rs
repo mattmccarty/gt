@@ -57,8 +57,7 @@ pub fn execute(opts: &UpdateOpts, ctx: &Context) -> Result<Output> {
     let new_strategy = opts
         .strategy
         .as_ref()
-        .map(|s| StrategyType::from_str(&s.to_string()))
-        .flatten()
+        .and_then(|s| StrategyType::from_str(&s.to_string()))
         .unwrap_or(current_strategy);
 
     let strategy_changed = current_strategy != new_strategy;
@@ -112,68 +111,60 @@ pub fn execute(opts: &UpdateOpts, ctx: &Context) -> Result<Output> {
         ));
 
         // Clean up old strategy
-        match current_strategy {
-            StrategyType::UrlRewrite => {
-                // Remove URL rewrites
-                let rewrites = git_config::find_url_rewrites()?;
-                for (original, replacement) in &rewrites {
-                    if replacement.contains(&current_ssh_host) {
-                        git_config::remove_url_rewrite(replacement)?;
-                        ctx.debug(&format!(
-                            "Removed URL rewrite: {} → {}",
-                            original, replacement
-                        ));
-                        if !ctx.quiet {
-                            eprintln!("✓ Removed Git URL rewrite");
-                        }
+        if current_strategy == StrategyType::UrlRewrite {
+            // Remove URL rewrites
+            let rewrites = git_config::find_url_rewrites()?;
+            for (original, replacement) in &rewrites {
+                if replacement.contains(&current_ssh_host) {
+                    git_config::remove_url_rewrite(replacement)?;
+                    ctx.debug(&format!(
+                        "Removed URL rewrite: {} → {}",
+                        original, replacement
+                    ));
+                    if !ctx.quiet {
+                        eprintln!("✓ Removed Git URL rewrite");
                     }
                 }
             }
-            _ => {}
         }
 
         // Set up new strategy
-        match new_strategy {
-            StrategyType::UrlRewrite => {
-                // Add URL rewrites
-                let provider = current_identity
-                    .provider
-                    .as_ref()
-                    .map(|p| p.hostname())
-                    .unwrap_or("github.com");
+        if new_strategy == StrategyType::UrlRewrite {
+            // Add URL rewrites
+            let provider = current_identity
+                .provider
+                .as_ref()
+                .map(|p| p.hostname())
+                .unwrap_or("github.com");
 
-                let (original_url, rewrite_url) = if let Some(ref scope) = opts.scope {
-                    (
-                        format!("git@{}:{}/", provider, scope),
-                        format!("git@{}:{}/", current_ssh_host, scope),
-                    )
-                } else {
-                    (
-                        format!("git@{}:", provider),
-                        format!("git@{}:", current_ssh_host),
-                    )
-                };
+            let (original_url, rewrite_url) = if let Some(ref scope) = opts.scope {
+                (
+                    format!("git@{}:{}/", provider, scope),
+                    format!("git@{}:{}/", current_ssh_host, scope),
+                )
+            } else {
+                (
+                    format!("git@{}:", provider),
+                    format!("git@{}:", current_ssh_host),
+                )
+            };
 
-                git_config::add_url_rewrite(&original_url, &rewrite_url)?;
+            git_config::add_url_rewrite(&original_url, &rewrite_url)?;
 
-                ctx.debug(&format!(
-                    "Added Git URL rewrite: {} → {}",
-                    original_url, rewrite_url
-                ));
+            ctx.debug(&format!(
+                "Added Git URL rewrite: {} → {}",
+                original_url, rewrite_url
+            ));
 
-                if !ctx.quiet {
-                    eprintln!("✓ Added Git URL rewrite");
-                    eprintln!("  {} → {}", original_url, rewrite_url);
-                }
-
-                if opts.scope.is_none() {
-                    eprintln!("⚠️  Warning: Full provider rewrite enabled. This will affect ALL repositories for {}.", provider);
-                    eprintln!(
-                        "   Consider using --scope to limit rewrites to specific organizations."
-                    );
-                }
+            if !ctx.quiet {
+                eprintln!("✓ Added Git URL rewrite");
+                eprintln!("  {} → {}", original_url, rewrite_url);
             }
-            _ => {}
+
+            if opts.scope.is_none() {
+                eprintln!("⚠️  Warning: Full provider rewrite enabled. This will affect ALL repositories for {}.", provider);
+                eprintln!("   Consider using --scope to limit rewrites to specific organizations.");
+            }
         }
 
         // Update strategy in config
@@ -188,7 +179,7 @@ pub fn execute(opts: &UpdateOpts, ctx: &Context) -> Result<Output> {
     config.save(&ctx.config_path)?;
 
     let mut output = Output::success(format!("Updated identity '{}'", opts.identity))
-        .with_detail("strategy", &new_strategy.to_string());
+        .with_detail("strategy", new_strategy.to_string());
 
     if opts.email.is_some() {
         output = output.with_detail("email", &final_email);
@@ -286,7 +277,7 @@ fn handle_rename(
         config.save(&ctx.config_path)?;
 
         let mut output = Output::success(format!("Updated identity '{}'", old_name))
-            .with_detail("strategy", &new_strategy.to_string());
+            .with_detail("strategy", new_strategy.to_string());
 
         if opts.email.is_some() {
             output = output.with_detail("email", &final_email);
@@ -598,7 +589,7 @@ fn handle_rename(
         .with_detail("new_name", new_name)
         .with_detail("old_ssh_host", &old_ssh_host)
         .with_detail("new_ssh_host", &new_ssh_host)
-        .with_detail("strategy", &new_strategy.to_string());
+        .with_detail("strategy", new_strategy.to_string());
 
     if opts.email.is_some() {
         output = output.with_detail("email", &updated_identity_config.email);
