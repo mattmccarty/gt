@@ -16,7 +16,10 @@ pub fn execute_id(opts: &FixIdOpts, ctx: &Context) -> Result<Output> {
         .clone()
         .unwrap_or_else(|| std::env::current_dir().unwrap_or_default());
 
-    ctx.info(&format!("Fixing identity configuration in {}", path.display()));
+    ctx.info(&format!(
+        "Fixing identity configuration in {}",
+        path.display()
+    ));
 
     if opts.restore {
         return restore_urls(opts, &path, ctx);
@@ -43,12 +46,13 @@ pub fn execute_id(opts: &FixIdOpts, ctx: &Context) -> Result<Output> {
     };
 
     // Get identity configuration
-    let identity_config = config
-        .identities
-        .get(&identity_name)
-        .ok_or_else(|| Error::IdentityNotFound {
-            name: identity_name.clone(),
-        })?;
+    let identity_config =
+        config
+            .identities
+            .get(&identity_name)
+            .ok_or_else(|| Error::IdentityNotFound {
+                name: identity_name.clone(),
+            })?;
 
     if ctx.dry_run {
         return Ok(Output::dry_run(format!(
@@ -197,7 +201,10 @@ fn update_remote_urls_ssh(
         }
 
         let current_url = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        ctx.debug(&format!("Current URL for '{}': {}", remote_name, current_url));
+        ctx.debug(&format!(
+            "Current URL for '{}': {}",
+            remote_name, current_url
+        ));
 
         let new_url = transform_url(&current_url, identity, provider)?;
 
@@ -223,7 +230,10 @@ fn update_remote_urls_ssh(
             }
 
             if !ctx.quiet {
-                eprintln!("✓ Updated remote '{}': {} → {}", remote_name, current_url, new_url);
+                eprintln!(
+                    "✓ Updated remote '{}': {} → {}",
+                    remote_name, current_url, new_url
+                );
             }
             updated_count += 1;
         } else {
@@ -280,7 +290,10 @@ fn restore_remote_urls(repo_path: &PathBuf, provider: &str, ctx: &Context) -> Re
         }
 
         let current_url = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        ctx.debug(&format!("Current URL for '{}': {}", remote_name, current_url));
+        ctx.debug(&format!(
+            "Current URL for '{}': {}",
+            remote_name, current_url
+        ));
 
         let new_url = restore_url(&current_url, provider)?;
 
@@ -306,7 +319,10 @@ fn restore_remote_urls(repo_path: &PathBuf, provider: &str, ctx: &Context) -> Re
             }
 
             if !ctx.quiet {
-                eprintln!("✓ Restored remote '{}': {} → {}", remote_name, current_url, new_url);
+                eprintln!(
+                    "✓ Restored remote '{}': {} → {}",
+                    remote_name, current_url, new_url
+                );
             }
             updated_count += 1;
         } else {

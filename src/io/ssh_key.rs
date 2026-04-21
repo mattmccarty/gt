@@ -51,7 +51,7 @@ impl KeyType {
         match self {
             KeyType::Rsa => Some(4096),
             KeyType::Ecdsa => Some(521), // ECDSA P-521
-            KeyType::Ed25519 => None,     // Ed25519 has fixed key size
+            KeyType::Ed25519 => None,    // Ed25519 has fixed key size
         }
     }
 }
@@ -250,20 +250,17 @@ pub fn read_public_key(path: &Path) -> Result<String> {
 
 /// Add a key to the SSH agent
 pub fn add_to_agent(path: &Path) -> Result<()> {
-    let output = Command::new("ssh-add")
-        .arg(path)
-        .output()
-        .map_err(|e| {
-            if e.kind() == std::io::ErrorKind::NotFound {
-                Error::ToolNotFound {
-                    tool: "ssh-add".to_string(),
-                }
-            } else {
-                Error::SshAgent {
-                    message: e.to_string(),
-                }
+    let output = Command::new("ssh-add").arg(path).output().map_err(|e| {
+        if e.kind() == std::io::ErrorKind::NotFound {
+            Error::ToolNotFound {
+                tool: "ssh-add".to_string(),
             }
-        })?;
+        } else {
+            Error::SshAgent {
+                message: e.to_string(),
+            }
+        }
+    })?;
 
     if !output.status.success() {
         return Err(Error::SshAgent {

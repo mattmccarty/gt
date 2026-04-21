@@ -223,11 +223,12 @@ impl Strategy for SshAliasStrategy {
         ));
 
         // Step 3: Transform repository URL
-        let current_url = repo.parsed_url.as_ref().ok_or_else(|| {
-            Error::UrlUnrecognized {
+        let current_url = repo
+            .parsed_url
+            .as_ref()
+            .ok_or_else(|| Error::UrlUnrecognized {
                 url: repo.remote_url.clone().unwrap_or_default(),
-            }
-        })?;
+            })?;
 
         let new_url = self.transform_url(current_url, identity)?;
 
@@ -244,11 +245,12 @@ impl Strategy for SshAliasStrategy {
 
     fn remove(&self, identity: &Identity, repo: &Repo) -> Result<()> {
         // Restore the original URL
-        let current_url = repo.parsed_url.as_ref().ok_or_else(|| {
-            Error::UrlUnrecognized {
+        let current_url = repo
+            .parsed_url
+            .as_ref()
+            .ok_or_else(|| Error::UrlUnrecognized {
                 url: repo.remote_url.clone().unwrap_or_default(),
-            }
-        })?;
+            })?;
 
         // Check if this identity is active
         if current_url.identity.as_ref() == Some(&identity.name) {
@@ -314,9 +316,7 @@ impl Strategy for SshAliasStrategy {
     fn setup_requirements(&self) -> Vec<SetupStep> {
         let ssh_dir_exists = path::ssh_dir().map(|p| p.exists()).unwrap_or(false);
 
-        let ssh_config_exists = path::ssh_config_path()
-            .map(|p| p.exists())
-            .unwrap_or(false);
+        let ssh_config_exists = path::ssh_config_path().map(|p| p.exists()).unwrap_or(false);
 
         vec![
             SetupStep {

@@ -60,10 +60,7 @@ pub fn execute(opts: &ImportOpts, ctx: &Context) -> Result<Output> {
         });
 
     // Determine user name (CLI arg > detected > identity name)
-    let user_name = opts
-        .user_name
-        .clone()
-        .unwrap_or_else(|| opts.name.clone());
+    let user_name = opts.user_name.clone().unwrap_or_else(|| opts.name.clone());
 
     // Determine provider (CLI arg > detected > default)
     let provider = opts
@@ -103,7 +100,7 @@ pub fn execute(opts: &ImportOpts, ctx: &Context) -> Result<Output> {
     let ssh_config = detected.key_path.as_ref().map(|key_path| {
         IdentitySshConfig {
             key_path: Some(key_path.clone()),
-            key_type: None, // Will be auto-detected when needed
+            key_type: None,            // Will be auto-detected when needed
             use_hostname_alias: false, // Default to no URL transformation for imported identities
         }
     });

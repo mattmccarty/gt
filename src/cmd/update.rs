@@ -22,12 +22,13 @@ pub fn execute(opts: &UpdateOpts, ctx: &Context) -> Result<Output> {
     }
 
     // Check if identity exists in config
-    let identity_config = config
-        .identities
-        .get_mut(&opts.identity)
-        .ok_or_else(|| Error::IdentityNotFound {
-            name: opts.identity.clone(),
-        })?;
+    let identity_config =
+        config
+            .identities
+            .get_mut(&opts.identity)
+            .ok_or_else(|| Error::IdentityNotFound {
+                name: opts.identity.clone(),
+            })?;
 
     // Detect current identity to get SSH host info
     let all_identities = detector::detect_identities()?;
@@ -39,13 +40,12 @@ pub fn execute(opts: &UpdateOpts, ctx: &Context) -> Result<Output> {
         })?;
 
     // Get current SSH host
-    let current_ssh_host = if let detector::DetectionSource::SshConfig { host } =
-        &current_identity.source
-    {
-        host.clone()
-    } else {
-        format!("gt-{}.github.com", opts.identity)
-    };
+    let current_ssh_host =
+        if let detector::DetectionSource::SshConfig { host } = &current_identity.source {
+            host.clone()
+        } else {
+            format!("gt-{}.github.com", opts.identity)
+        };
 
     // Parse current and new strategy
     let current_strategy = identity_config
@@ -119,7 +119,10 @@ pub fn execute(opts: &UpdateOpts, ctx: &Context) -> Result<Output> {
                 for (original, replacement) in &rewrites {
                     if replacement.contains(&current_ssh_host) {
                         git_config::remove_url_rewrite(replacement)?;
-                        ctx.debug(&format!("Removed URL rewrite: {} → {}", original, replacement));
+                        ctx.debug(&format!(
+                            "Removed URL rewrite: {} → {}",
+                            original, replacement
+                        ));
                         if !ctx.quiet {
                             eprintln!("✓ Removed Git URL rewrite");
                         }
@@ -165,7 +168,9 @@ pub fn execute(opts: &UpdateOpts, ctx: &Context) -> Result<Output> {
 
                 if opts.scope.is_none() {
                     eprintln!("⚠️  Warning: Full provider rewrite enabled. This will affect ALL repositories for {}.", provider);
-                    eprintln!("   Consider using --scope to limit rewrites to specific organizations.");
+                    eprintln!(
+                        "   Consider using --scope to limit rewrites to specific organizations."
+                    );
                 }
             }
             _ => {}
@@ -221,12 +226,13 @@ fn handle_rename(
         ctx.info(&format!("Updating identity '{}'...", old_name));
 
         // Get the identity config
-        let identity_config = config
-            .identities
-            .get_mut(old_name)
-            .ok_or_else(|| Error::IdentityNotFound {
-                name: old_name.to_string(),
-            })?;
+        let identity_config =
+            config
+                .identities
+                .get_mut(old_name)
+                .ok_or_else(|| Error::IdentityNotFound {
+                    name: old_name.to_string(),
+                })?;
 
         // Apply updates
         if let Some(ref email) = opts.email {
@@ -266,7 +272,10 @@ fn handle_rename(
 
             // Note: URL rewrites and other strategy-specific changes would need
             // to be handled here if we want to support strategy changes without rename
-            ctx.info(&format!("Strategy changed to {}. Use regular update command for full strategy migration.", new_strategy));
+            ctx.info(&format!(
+                "Strategy changed to {}. Use regular update command for full strategy migration.",
+                new_strategy
+            ));
         }
 
         // Clone values before save (borrow checker)
@@ -299,7 +308,10 @@ fn handle_rename(
         return Ok(output);
     }
 
-    ctx.info(&format!("Renaming identity '{}' to '{}'...", old_name, new_name));
+    ctx.info(&format!(
+        "Renaming identity '{}' to '{}'...",
+        old_name, new_name
+    ));
 
     // Validate new name
     validate_identity_name(new_name)?;
@@ -330,13 +342,12 @@ fn handle_rename(
         })?;
 
     // Get current and new SSH hosts
-    let old_ssh_host = if let detector::DetectionSource::SshConfig { host } =
-        &current_identity.source
-    {
-        host.clone()
-    } else {
-        format!("gt-{}.github.com", old_name)
-    };
+    let old_ssh_host =
+        if let detector::DetectionSource::SshConfig { host } = &current_identity.source {
+            host.clone()
+        } else {
+            format!("gt-{}.github.com", old_name)
+        };
 
     let new_ssh_host = format!("gt-{}.github.com", new_name);
 
@@ -421,7 +432,8 @@ fn handle_rename(
             } else {
                 format!("~/.ssh/id_gt_{}", new_name)
             };
-            let new_key_path_expanded = crate::util::expand_path(std::path::Path::new(&new_key_path))?;
+            let new_key_path_expanded =
+                crate::util::expand_path(std::path::Path::new(&new_key_path))?;
 
             // Rename private key
             if old_key_path.exists() {
@@ -508,7 +520,10 @@ fn handle_rename(
             for (original, replacement) in &rewrites {
                 if replacement.contains(&new_ssh_host) {
                     git_config::remove_url_rewrite(replacement)?;
-                    ctx.debug(&format!("Removed URL rewrite: {} → {}", original, replacement));
+                    ctx.debug(&format!(
+                        "Removed URL rewrite: {} → {}",
+                        original, replacement
+                    ));
                     if !ctx.quiet {
                         eprintln!("✓ Removed old Git URL rewrite");
                     }
@@ -578,15 +593,12 @@ fn handle_rename(
         }
     }
 
-    let mut output = Output::success(format!(
-        "Renamed identity '{}' to '{}'",
-        old_name, new_name
-    ))
-    .with_detail("old_name", old_name)
-    .with_detail("new_name", new_name)
-    .with_detail("old_ssh_host", &old_ssh_host)
-    .with_detail("new_ssh_host", &new_ssh_host)
-    .with_detail("strategy", &new_strategy.to_string());
+    let mut output = Output::success(format!("Renamed identity '{}' to '{}'", old_name, new_name))
+        .with_detail("old_name", old_name)
+        .with_detail("new_name", new_name)
+        .with_detail("old_ssh_host", &old_ssh_host)
+        .with_detail("new_ssh_host", &new_ssh_host)
+        .with_detail("strategy", &new_strategy.to_string());
 
     if opts.email.is_some() {
         output = output.with_detail("email", &updated_identity_config.email);

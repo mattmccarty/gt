@@ -33,12 +33,13 @@ fn delete_strategy_variant(opts: &DeleteOpts, ctx: &Context) -> Result<Output> {
     let mut config = ctx.require_config()?.clone();
 
     // Check if identity exists in config
-    let identity_config = config
-        .identities
-        .get_mut(&opts.identity)
-        .ok_or_else(|| Error::IdentityNotFound {
-            name: opts.identity.clone(),
-        })?;
+    let identity_config =
+        config
+            .identities
+            .get_mut(&opts.identity)
+            .ok_or_else(|| Error::IdentityNotFound {
+                name: opts.identity.clone(),
+            })?;
 
     // Migrate legacy strategies if needed
     identity_config.migrate_legacy_strategies();
@@ -118,7 +119,10 @@ fn delete_strategy_variant(opts: &DeleteOpts, ctx: &Context) -> Result<Output> {
 
 /// Delete an entire identity (all strategy variants)
 fn delete_full_identity(opts: &DeleteOpts, ctx: &Context) -> Result<Output> {
-    ctx.info(&format!("Deleting all strategies for identity '{}'...", opts.identity));
+    ctx.info(&format!(
+        "Deleting all strategies for identity '{}'...",
+        opts.identity
+    ));
 
     // Check if identity exists in config file
     let has_config = ctx.has_config();
@@ -203,7 +207,11 @@ fn delete_full_identity(opts: &DeleteOpts, ctx: &Context) -> Result<Output> {
     }
 
     if ctx.dry_run {
-        let mut msg = format!("Would delete identity '{}' with {} strategies", opts.identity, identity_config.strategies.len());
+        let mut msg = format!(
+            "Would delete identity '{}' with {} strategies",
+            opts.identity,
+            identity_config.strategies.len()
+        );
         if let Some(ref key) = key_path_opt {
             if !opts.keep_key {
                 msg.push_str(&format!(" and SSH key '{}'", key));
@@ -291,10 +299,15 @@ fn delete_full_identity(opts: &DeleteOpts, ctx: &Context) -> Result<Output> {
         false
     };
 
-    Ok(Output::success(format!("Deleted identity '{}'", opts.identity))
-        .with_detail("identity_deleted", "true")
-        .with_detail("strategies_deleted", &identity_config.strategies.len().to_string())
-        .with_detail("key_deleted", &key_deleted.to_string()))
+    Ok(
+        Output::success(format!("Deleted identity '{}'", opts.identity))
+            .with_detail("identity_deleted", "true")
+            .with_detail(
+                "strategies_deleted",
+                &identity_config.strategies.len().to_string(),
+            )
+            .with_detail("key_deleted", &key_deleted.to_string()),
+    )
 }
 
 /// Remove strategy-specific infrastructure (git config, SSH config, etc.)
@@ -345,7 +358,10 @@ fn remove_strategy_infrastructure(
                     // Check if this rewrite matches the scope
                     if original.contains(scope) && replacement.contains(identity_name) {
                         git_config::remove_url_rewrite(replacement)?;
-                        ctx.debug(&format!("Removed URL rewrite: {} → {}", original, replacement));
+                        ctx.debug(&format!(
+                            "Removed URL rewrite: {} → {}",
+                            original, replacement
+                        ));
                         if !ctx.quiet {
                             eprintln!("  ✓ Removed URL rewrite for scope '{}'", scope);
                         }
@@ -358,7 +374,10 @@ fn remove_strategy_infrastructure(
             ctx.debug("SSH strategy cleanup handled by main delete");
         }
         _ => {
-            ctx.debug(&format!("Unknown strategy type: {}", strategy.strategy_type));
+            ctx.debug(&format!(
+                "Unknown strategy type: {}",
+                strategy.strategy_type
+            ));
         }
     }
 

@@ -160,7 +160,12 @@ pub fn remove_conditional_include(condition: &str) -> Result<()> {
 /// Find all URL rewrite rules
 pub fn find_url_rewrites() -> Result<Vec<(String, String)>> {
     let output = Command::new("git")
-        .args(["config", "--global", "--get-regexp", r"^url\..*\.insteadof$"])
+        .args([
+            "config",
+            "--global",
+            "--get-regexp",
+            r"^url\..*\.insteadof$",
+        ])
         .output()
         .map_err(|e| Error::GitCommand {
             message: e.to_string(),
@@ -202,7 +207,12 @@ pub fn remove_url_rewrite(replacement: &str) -> Result<()> {
 }
 
 /// Write an include file for conditional includes
-pub fn write_include_file(path: &Path, email: &str, name: &str, ssh_key: Option<&str>) -> Result<()> {
+pub fn write_include_file(
+    path: &Path,
+    email: &str,
+    name: &str,
+    ssh_key: Option<&str>,
+) -> Result<()> {
     // Ensure parent directory exists
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)?;

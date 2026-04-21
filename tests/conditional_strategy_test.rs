@@ -115,7 +115,10 @@ fn test_create_identity_config_file() {
         content.contains("Work User"),
         "Config should contain user name"
     );
-    assert!(content.contains("[user]"), "Config should have [user] section");
+    assert!(
+        content.contains("[user]"),
+        "Config should have [user] section"
+    );
 
     println!("Identity config created at: {}", config_path.display());
     println!("Content:\n{}", content);
@@ -254,11 +257,7 @@ fn test_identity_config_with_special_characters() {
     let gitconfig_d = env.home.join(".gitconfig.d");
     let strategy = ConditionalStrategy::with_config_dir(gitconfig_d.to_string_lossy().to_string());
 
-    let identity = create_test_identity(
-        "work-2024",
-        "user+work@company.com",
-        "Work User Jr.",
-    );
+    let identity = create_test_identity("work-2024", "user+work@company.com", "Work User Jr.");
 
     let config_path = strategy
         .create_identity_config(&identity, None)
@@ -346,7 +345,10 @@ fn test_strategy_cleanup() {
     // Manually cleanup the file (cleanup_identity removes from gitconfig includes too)
     std::fs::remove_file(&config_path).expect("Failed to remove config file");
 
-    assert!(!config_path.exists(), "Config should be removed after cleanup");
+    assert!(
+        !config_path.exists(),
+        "Config should be removed after cleanup"
+    );
 }
 
 // =============================================================================
@@ -381,7 +383,10 @@ fn test_use_command_with_directory_flag() {
 
     // Verify config file was created
     let identity_config = gitconfig_d.join("work");
-    assert!(identity_config.exists(), "Identity config should be created");
+    assert!(
+        identity_config.exists(),
+        "Identity config should be created"
+    );
 
     println!("Changes made:");
     for change in &result.changes {
@@ -493,7 +498,10 @@ fn test_strategy_setup_requirements() {
     assert!(!requirements.is_empty(), "Should have setup requirements");
 
     // Check for expected requirements
-    let descriptions: Vec<&str> = requirements.iter().map(|r| r.description.as_str()).collect();
+    let descriptions: Vec<&str> = requirements
+        .iter()
+        .map(|r| r.description.as_str())
+        .collect();
 
     assert!(
         descriptions.iter().any(|d| d.contains("Config directory")),

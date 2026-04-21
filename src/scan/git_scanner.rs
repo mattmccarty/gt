@@ -52,17 +52,13 @@ pub fn scan_git_config() -> Result<GitScanResult> {
     let includes = git_config::find_conditional_includes()?;
     for include in includes {
         let directory = if include.condition.starts_with("gitdir:") {
-            include
-                .condition
-                .strip_prefix("gitdir:")
-                .map(String::from)
+            include.condition.strip_prefix("gitdir:").map(String::from)
         } else {
             None
         };
 
         // Try to read the include file
-        let expanded_path =
-            crate::util::expand_path(std::path::Path::new(&include.path)).ok();
+        let expanded_path = crate::util::expand_path(std::path::Path::new(&include.path)).ok();
         let file_exists = expanded_path.as_ref().map_or(false, |p| p.exists());
 
         // Read email and name from include file

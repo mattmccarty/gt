@@ -98,11 +98,11 @@ impl Context {
 
     /// Get config, returning error if not loaded
     pub fn require_config(&self) -> Result<&GtConfig> {
-        self.config.as_ref().ok_or_else(|| {
-            crate::error::Error::ConfigNotFound {
+        self.config
+            .as_ref()
+            .ok_or_else(|| crate::error::Error::ConfigNotFound {
                 path: self.config_path.clone(),
-            }
-        })
+            })
     }
 
     /// Log at debug level if verbose

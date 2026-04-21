@@ -65,7 +65,10 @@ pub fn execute(opts: &CloneOpts, ctx: &Context) -> Result<Output> {
 
         if use_hostname_alias {
             // Transform URL to use identity-specific SSH host
-            ctx.debug(&format!("Transforming URL for SSH hostname alias (identity: {})", identity_name));
+            ctx.debug(&format!(
+                "Transforming URL for SSH hostname alias (identity: {})",
+                identity_name
+            ));
             transform_url(&opts.url, &identity_name, provider)?
         } else {
             // Use standard provider hostname
@@ -152,19 +155,32 @@ fn detect_identity_from_url(url: &str, ctx: &Context) -> Result<String> {
         for (identity_name, identity_config) in &config.identities {
             // Check if identity name matches username
             if identity_name.to_lowercase() == user.to_lowercase() {
-                ctx.info(&format!("Auto-detected identity '{}' (name match)", identity_name));
+                ctx.info(&format!(
+                    "Auto-detected identity '{}' (name match)",
+                    identity_name
+                ));
                 return Ok(identity_name.clone());
             }
 
             // Check if email contains username
-            if identity_config.email.to_lowercase().contains(&user.to_lowercase()) {
-                ctx.info(&format!("Auto-detected identity '{}' (email match)", identity_name));
+            if identity_config
+                .email
+                .to_lowercase()
+                .contains(&user.to_lowercase())
+            {
+                ctx.info(&format!(
+                    "Auto-detected identity '{}' (email match)",
+                    identity_name
+                ));
                 return Ok(identity_name.clone());
             }
 
             // Check if git user name matches
             if identity_config.name.to_lowercase() == user.to_lowercase() {
-                ctx.info(&format!("Auto-detected identity '{}' (user name match)", identity_name));
+                ctx.info(&format!(
+                    "Auto-detected identity '{}' (user name match)",
+                    identity_name
+                ));
                 return Ok(identity_name.clone());
             }
         }
@@ -173,19 +189,15 @@ fn detect_identity_from_url(url: &str, ctx: &Context) -> Result<String> {
     }
 
     // Fall back to default identity
-    let default = config
-        .defaults
-        .identity
-        .clone()
-        .unwrap_or_else(|| {
-            // If no default set, use the first identity
-            config
-                .identities
-                .keys()
-                .next()
-                .map(|k| k.clone())
-                .unwrap_or_else(|| "default".to_string())
-        });
+    let default = config.defaults.identity.clone().unwrap_or_else(|| {
+        // If no default set, use the first identity
+        config
+            .identities
+            .keys()
+            .next()
+            .map(|k| k.clone())
+            .unwrap_or_else(|| "default".to_string())
+    });
 
     ctx.info(&format!("Using default identity '{}'", default));
     Ok(default)

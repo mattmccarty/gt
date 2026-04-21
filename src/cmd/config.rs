@@ -22,12 +22,10 @@ pub fn execute(opts: &ConfigOpts, ctx: &Context) -> Result<Output> {
                 Some(ConfigIdCommands::Delete(opts)) => crate::cmd::delete::execute(opts, ctx),
                 Some(ConfigIdCommands::Update(opts)) => crate::cmd::update::execute(opts, ctx),
                 Some(ConfigIdCommands::Fix(opts)) => crate::cmd::fix::execute_id(opts, ctx),
-                Some(ConfigIdCommands::Default { name }) => {
-                    match name {
-                        Some(id_name) => set_default_identity(id_name, ctx),
-                        None => get_default_identity(ctx),
-                    }
-                }
+                Some(ConfigIdCommands::Default { name }) => match name {
+                    Some(id_name) => set_default_identity(id_name, ctx),
+                    None => get_default_identity(ctx),
+                },
                 None => {
                     // `gt config id` - show identity configuration
                     show_identity_config(ctx)
@@ -124,9 +122,8 @@ fn set_default_identity(identity_name: &str, ctx: &Context) -> Result<Output> {
         eprintln!("✓ Set '{}' as the default identity", identity_name);
     }
 
-    Ok(Output::success(format!(
-        "Set default identity to '{}'",
-        identity_name
-    ))
-    .with_detail("default.identity", identity_name))
+    Ok(
+        Output::success(format!("Set default identity to '{}'", identity_name))
+            .with_detail("default.identity", identity_name),
+    )
 }

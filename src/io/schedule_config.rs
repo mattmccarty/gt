@@ -106,9 +106,8 @@ impl ScheduleConfig {
     /// Add a schedule
     pub fn add_schedule(&mut self, schedule: Schedule) {
         // Remove any existing schedule for the same repo/branch
-        self.schedules.retain(|s| {
-            s.repo_path != schedule.repo_path || s.branch != schedule.branch
-        });
+        self.schedules
+            .retain(|s| s.repo_path != schedule.repo_path || s.branch != schedule.branch);
 
         self.schedules.push(schedule);
     }
@@ -116,24 +115,23 @@ impl ScheduleConfig {
     /// Remove a schedule by repo path and branch
     pub fn remove_schedule(&mut self, repo_path: &Path, branch: &str) -> bool {
         let initial_len = self.schedules.len();
-        self.schedules.retain(|s| {
-            s.repo_path != repo_path || s.branch != branch
-        });
+        self.schedules
+            .retain(|s| s.repo_path != repo_path || s.branch != branch);
         self.schedules.len() < initial_len
     }
 
     /// Get a schedule by repo path and branch
     pub fn get_schedule(&self, repo_path: &Path, branch: &str) -> Option<&Schedule> {
-        self.schedules.iter().find(|s| {
-            s.repo_path == repo_path && s.branch == branch
-        })
+        self.schedules
+            .iter()
+            .find(|s| s.repo_path == repo_path && s.branch == branch)
     }
 
     /// Get a mutable schedule by repo path and branch
     pub fn get_schedule_mut(&mut self, repo_path: &Path, branch: &str) -> Option<&mut Schedule> {
-        self.schedules.iter_mut().find(|s| {
-            s.repo_path == repo_path && s.branch == branch
-        })
+        self.schedules
+            .iter_mut()
+            .find(|s| s.repo_path == repo_path && s.branch == branch)
     }
 
     /// List all schedules

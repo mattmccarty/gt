@@ -315,9 +315,6 @@ mod tests {
             .build("Found 2 identities");
 
         assert_eq!(output.table.len(), 2);
-        assert_eq!(
-            output.table[0].get("name"),
-            Some(&"work".to_string())
-        );
+        assert_eq!(output.table[0].get("name"), Some(&"work".to_string()));
     }
 }

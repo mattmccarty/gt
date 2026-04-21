@@ -22,11 +22,16 @@ fn test_ssh_config_roundtrip_in_temp_dir() {
 
     // Save to isolated temp directory
     let ssh_config_path = env.ssh_dir.join("config");
-    config.save(&ssh_config_path).expect("Failed to save SSH config");
+    config
+        .save(&ssh_config_path)
+        .expect("Failed to save SSH config");
 
     // Verify file exists in temp directory (NOT real system)
     assert!(ssh_config_path.exists());
-    assert!(ssh_config_path.starts_with(&env.home), "SAFETY: Must be in temp directory");
+    assert!(
+        ssh_config_path.starts_with(&env.home),
+        "SAFETY: Must be in temp directory"
+    );
 
     // Load it back
     let loaded = SshConfig::load(&ssh_config_path).expect("Failed to load SSH config");
@@ -226,7 +231,11 @@ fn test_ssh_config_permissions_unix() {
     let permissions = metadata.permissions();
     let mode = permissions.mode();
 
-    assert_eq!(mode & 0o777, 0o600, "SSH config should have 0600 permissions");
+    assert_eq!(
+        mode & 0o777,
+        0o600,
+        "SSH config should have 0600 permissions"
+    );
 
     println!("✓ SSH config permissions test passed");
 }
@@ -300,22 +309,38 @@ Host gt-personal.github.com
 
     assert!(has_hostname_warning, "Should warn about orphaned HostName");
     assert!(has_user_warning, "Should warn about orphaned User");
-    assert!(has_identityfile_warning, "Should warn about orphaned IdentityFile");
-    assert!(has_identitiesonly_warning, "Should warn about orphaned IdentitiesOnly");
+    assert!(
+        has_identityfile_warning,
+        "Should warn about orphaned IdentityFile"
+    );
+    assert!(
+        has_identitiesonly_warning,
+        "Should warn about orphaned IdentitiesOnly"
+    );
 
     // Verify warning messages are helpful
     for warning in warnings {
-        assert!(warning.message.contains("outside of any Host block"),
-            "Warning should explain the issue");
-        assert!(warning.message.contains("corrupted"),
-            "Warning should mention corruption");
+        assert!(
+            warning.message.contains("outside of any Host block"),
+            "Warning should explain the issue"
+        );
+        assert!(
+            warning.message.contains("corrupted"),
+            "Warning should mention corruption"
+        );
         assert!(warning.line_number > 0, "Should have valid line number");
     }
 
     // Should still parse the valid host
     assert_eq!(config.hosts.len(), 1, "Should still parse valid host");
-    assert!(config.has_host("gt-personal.github.com"), "Should have the valid host");
+    assert!(
+        config.has_host("gt-personal.github.com"),
+        "Should have the valid host"
+    );
 
     println!("✓ Corrupt SSH config detection test passed");
-    println!("  Detected {} warnings for orphaned directives", warnings.len());
+    println!(
+        "  Detected {} warnings for orphaned directives",
+        warnings.len()
+    );
 }

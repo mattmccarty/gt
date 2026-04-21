@@ -33,9 +33,7 @@ impl Repo {
         let remote_url = Self::get_remote_url(&repo_root, "origin").ok();
 
         // Parse the URL
-        let parsed_url = remote_url
-            .as_ref()
-            .and_then(|url| GitUrl::parse(url).ok());
+        let parsed_url = remote_url.as_ref().and_then(|url| GitUrl::parse(url).ok());
 
         Ok(Repo {
             path: repo_root,
@@ -58,9 +56,7 @@ impl Repo {
             return Err(Error::NotARepository);
         }
 
-        let root = String::from_utf8_lossy(&output.stdout)
-            .trim()
-            .to_string();
+        let root = String::from_utf8_lossy(&output.stdout).trim().to_string();
         Ok(PathBuf::from(root))
     }
 

@@ -104,7 +104,14 @@ fn execute_reset_commits(opts: &ResetOpts, ctx: &Context) -> Result<Output> {
     if !keep_history {
         ctx.info("Clearing reflog and pruning git history...");
 
-        execute_git_command("reflog", &["expire".to_string(), "--expire=now".to_string(), "--all".to_string()])?;
+        execute_git_command(
+            "reflog",
+            &[
+                "expire".to_string(),
+                "--expire=now".to_string(),
+                "--all".to_string(),
+            ],
+        )?;
         execute_git_command("gc", &["--prune=now".to_string()])?;
 
         ctx.info("History cleared");

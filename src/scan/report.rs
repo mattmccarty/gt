@@ -65,10 +65,7 @@ impl ScanReport {
             if key.is_gitid && !key.in_config {
                 self.recommendations.push(Recommendation {
                     kind: RecommendationType::Fix,
-                    description: format!(
-                        "SSH key {} is not referenced in SSH config",
-                        key.path
-                    ),
+                    description: format!("SSH key {} is not referenced in SSH config", key.path),
                     command: None,
                 });
             }
@@ -79,10 +76,7 @@ impl ScanReport {
             if !cond.file_exists {
                 self.recommendations.push(Recommendation {
                     kind: RecommendationType::Fix,
-                    description: format!(
-                        "Conditional include file {} does not exist",
-                        cond.path
-                    ),
+                    description: format!("Conditional include file {} does not exist", cond.path),
                     command: None,
                 });
             }
@@ -133,7 +127,11 @@ impl std::fmt::Display for ScanSummary {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "Scan Summary")?;
         writeln!(f, "============")?;
-        writeln!(f, "SSH hosts: {} ({} gitid)", self.ssh_hosts, self.gitid_hosts)?;
+        writeln!(
+            f,
+            "SSH hosts: {} ({} gitid)",
+            self.ssh_hosts, self.gitid_hosts
+        )?;
         writeln!(f, "SSH keys: {} ({} gitid)", self.ssh_keys, self.gitid_keys)?;
         writeln!(f, "Conditional includes: {}", self.conditionals)?;
         writeln!(f, "URL rewrites: {}", self.url_rewrites)?;
