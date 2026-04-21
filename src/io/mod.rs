@@ -7,6 +7,7 @@
 //! - Backup management
 //! - TOML configuration
 
+pub mod active_id;
 pub mod backup;
 pub mod git_config;
 pub mod git_hooks;

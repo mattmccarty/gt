@@ -12,6 +12,12 @@ including how to move `Unreleased` into a version section at release time.
 
 ## [Unreleased]
 
+### Added
+
+- `gt config id use <name>` now succeeds when run outside any git repository, recording the selection in `<config_dir>/active-id.toml` so subsequent `gt clone` invocations can honor it. Previously errored with "Not inside a Git repository."
+- `gt config id use --clear` removes the active-identity state file.
+- `gt config id` summary and `gt config id status` surface the active identity when set.
+
 ## [0.2.0] - 2026-04-17
 
 ### Added
