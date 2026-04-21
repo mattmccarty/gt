@@ -60,7 +60,10 @@ fn test_add_identity_basic() {
 
     // Load and verify config
     let config = GtConfig::load(&ctx.config_path).expect("Failed to load config");
-    assert!(config.identities.contains_key("work"), "Identity should be in config");
+    assert!(
+        config.identities.contains_key("work"),
+        "Identity should be in config"
+    );
 
     let identity = config.get_identity("work").expect("Should get identity");
     assert_eq!(identity.email, "work@company.com");
@@ -97,11 +100,17 @@ fn test_add_identity_with_ssh_config() {
     };
 
     let result = add::execute(&opts, &ctx);
-    assert!(result.is_ok(), "Failed to add identity with SSH: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Failed to add identity with SSH: {:?}",
+        result.err()
+    );
 
     // Verify config
     let config = GtConfig::load(&ctx.config_path).expect("Failed to load config");
-    let identity = config.get_identity("personal").expect("Should get identity");
+    let identity = config
+        .get_identity("personal")
+        .expect("Should get identity");
 
     assert!(identity.ssh.is_some(), "SSH config should be present");
     let ssh = identity.ssh.as_ref().unwrap();
@@ -110,7 +119,10 @@ fn test_add_identity_with_ssh_config() {
     // Verify SSH key was generated in temp directory
     let key_path = env.ssh_dir.join("id_gt_personal");
     assert!(key_path.exists(), "SSH key should be generated in temp dir");
-    assert!(key_path.with_extension("pub").exists(), "Public key should exist");
+    assert!(
+        key_path.with_extension("pub").exists(),
+        "Public key should exist"
+    );
 
     // Verify SSH config was created in temp directory
     let ssh_config_path = env.ssh_dir.join("config");
@@ -165,7 +177,10 @@ fn test_add_identity_duplicate_name() {
     assert!(result.is_err(), "Should fail on duplicate name");
 
     let err = result.unwrap_err();
-    assert!(err.to_string().contains("already exists"), "Error should mention duplicate");
+    assert!(
+        err.to_string().contains("already exists"),
+        "Error should mention duplicate"
+    );
 
     println!("✓ Duplicate identity detection working");
 }
@@ -193,7 +208,10 @@ fn test_add_identity_missing_email() {
     assert!(result.is_err(), "Should fail without email");
 
     let err = result.unwrap_err();
-    assert!(err.to_string().contains("email"), "Error should mention email");
+    assert!(
+        err.to_string().contains("email"),
+        "Error should mention email"
+    );
 
     println!("✓ Email validation working");
 }
@@ -221,7 +239,10 @@ fn test_add_identity_missing_user_name() {
     assert!(result.is_err(), "Should fail without user_name");
 
     let err = result.unwrap_err();
-    assert!(err.to_string().contains("user name"), "Error should mention user name");
+    assert!(
+        err.to_string().contains("user name"),
+        "Error should mention user name"
+    );
 
     println!("✓ User name validation working");
 }
@@ -249,7 +270,10 @@ fn test_add_identity_invalid_name() {
     assert!(result.is_err(), "Should fail with invalid name");
 
     let err = result.unwrap_err();
-    assert!(err.to_string().contains("gt-"), "Error should mention reserved prefix");
+    assert!(
+        err.to_string().contains("gt-"),
+        "Error should mention reserved prefix"
+    );
 
     println!("✓ Identity name validation working");
 }
@@ -278,7 +302,10 @@ fn test_add_identity_dry_run() {
     assert!(result.is_ok(), "Dry run should succeed");
 
     // Verify config was NOT created
-    assert!(!ctx.config_path.exists(), "Config file should not be created in dry run");
+    assert!(
+        !ctx.config_path.exists(),
+        "Config file should not be created in dry run"
+    );
 
     println!("✓ Dry run mode working");
 }
@@ -330,8 +357,14 @@ fn test_add_multiple_identities() {
 
     // Verify both identities are in config
     let config = GtConfig::load(&config_path).expect("Failed to load config");
-    assert!(config.identities.contains_key("work"), "Work identity should exist");
-    assert!(config.identities.contains_key("personal"), "Personal identity should exist");
+    assert!(
+        config.identities.contains_key("work"),
+        "Work identity should exist"
+    );
+    assert!(
+        config.identities.contains_key("personal"),
+        "Personal identity should exist"
+    );
     assert_eq!(config.identities.len(), 2, "Should have 2 identities");
 
     println!("✓ Multiple identities added successfully");
@@ -379,7 +412,10 @@ fn test_add_identity_with_custom_key_path() {
 
     // Verify SSH key was generated with custom path in temp directory
     assert!(custom_key.exists(), "Custom SSH key should be generated");
-    assert!(custom_key.with_extension("pub").exists(), "Public key should exist");
+    assert!(
+        custom_key.with_extension("pub").exists(),
+        "Public key should exist"
+    );
 
     println!("✓ Custom key path working");
 }

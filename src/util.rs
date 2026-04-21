@@ -104,10 +104,7 @@ pub fn validate_identity_name(name: &str) -> Result<()> {
         });
     }
 
-    if !name
-        .chars()
-        .all(|c| c.is_ascii_alphanumeric() || c == '-')
-    {
+    if !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '-') {
         return Err(Error::IdentityNameInvalid {
             name: name.to_string(),
             reason: "must contain only letters, numbers, and hyphens".to_string(),
@@ -273,7 +270,11 @@ pub fn execute_git_command(subcommand: &str, args: &[String]) -> Result<()> {
 ///
 /// paginate_output(all_lines.into_iter(), 20, Some(header.iter().map(|s| s.to_string()).collect())).unwrap();
 /// ```
-pub fn paginate_output<I>(lines: I, lines_per_page: usize, initial_lines: Option<Vec<String>>) -> Result<()>
+pub fn paginate_output<I>(
+    lines: I,
+    lines_per_page: usize,
+    initial_lines: Option<Vec<String>>,
+) -> Result<()>
 where
     I: Iterator<Item = String>,
 {
@@ -322,7 +323,10 @@ where
 
         // Prompt for more
         let remaining = total_lines - idx;
-        eprint!("\n--- Press Enter for more ({} lines remaining), or Ctrl+C to quit --- ", remaining);
+        eprint!(
+            "\n--- Press Enter for more ({} lines remaining), or Ctrl+C to quit --- ",
+            remaining
+        );
         stdout.flush().map_err(|e| Error::GitCommand {
             message: format!("Failed to flush stdout: {}", e),
         })?;
@@ -332,9 +336,12 @@ where
 
         // Wait for Enter
         let mut input = String::new();
-        stdin.lock().read_line(&mut input).map_err(|e| Error::GitCommand {
-            message: format!("Failed to read from stdin: {}", e),
-        })?;
+        stdin
+            .lock()
+            .read_line(&mut input)
+            .map_err(|e| Error::GitCommand {
+                message: format!("Failed to read from stdin: {}", e),
+            })?;
     }
 
     Ok(())
@@ -423,7 +430,7 @@ pub fn get_head_commit_date() -> Result<Option<DateTime<Utc>>> {
     let mut cmd = Command::new("git");
     cmd.arg("log");
     cmd.arg("-1");
-    cmd.arg("--format=%aI");  // Author date in ISO 8601 format
+    cmd.arg("--format=%aI"); // Author date in ISO 8601 format
     cmd.arg("HEAD");
 
     let output = cmd.output().map_err(|e| Error::GitCommand {
@@ -493,12 +500,7 @@ pub fn execute_git_passthrough(
 
     // Handle help flag with pagination
     if opts.help {
-        execute_git_command_paginated(
-            command_name,
-            &["--help".to_string()],
-            20,
-            None,
-        )?;
+        execute_git_command_paginated(command_name, &["--help".to_string()], 20, None)?;
         return Ok(Output::success(""));
     }
 

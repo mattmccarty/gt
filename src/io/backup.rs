@@ -67,13 +67,14 @@ impl BackupManager {
         std::fs::create_dir_all(&backup_dir)?;
 
         // Generate backup filename
-        let original_name = original
-            .file_name()
-            .and_then(|n| n.to_str())
-            .ok_or(Error::BackupFailed {
-                path: original.to_owned(),
-                message: "Invalid filename".to_string(),
-            })?;
+        let original_name =
+            original
+                .file_name()
+                .and_then(|n| n.to_str())
+                .ok_or(Error::BackupFailed {
+                    path: original.to_owned(),
+                    message: "Invalid filename".to_string(),
+                })?;
 
         let backup_name = format!("{}.{}.bak", original_name, backup_timestamp());
         let backup_path = backup_dir.join(&backup_name);
@@ -102,9 +103,9 @@ impl BackupManager {
         let mut backups: Vec<_> = std::fs::read_dir(backup_dir)?
             .filter_map(|e| e.ok())
             .filter(|e| {
-                e.file_name()
-                    .to_str()
-                    .map_or(false, |n| n.starts_with(original_name) && n.ends_with(".bak"))
+                e.file_name().to_str().map_or(false, |n| {
+                    n.starts_with(original_name) && n.ends_with(".bak")
+                })
             })
             .collect();
 
@@ -135,20 +136,21 @@ impl BackupManager {
                 message: "Cannot determine backup directory".to_string(),
             })?;
 
-        let original_name = original
-            .file_name()
-            .and_then(|n| n.to_str())
-            .ok_or(Error::BackupFailed {
-                path: original.to_owned(),
-                message: "Invalid filename".to_string(),
-            })?;
+        let original_name =
+            original
+                .file_name()
+                .and_then(|n| n.to_str())
+                .ok_or(Error::BackupFailed {
+                    path: original.to_owned(),
+                    message: "Invalid filename".to_string(),
+                })?;
 
         let mut backups: Vec<_> = std::fs::read_dir(&backup_dir)?
             .filter_map(|e| e.ok())
             .filter(|e| {
-                e.file_name()
-                    .to_str()
-                    .map_or(false, |n| n.starts_with(original_name) && n.ends_with(".bak"))
+                e.file_name().to_str().map_or(false, |n| {
+                    n.starts_with(original_name) && n.ends_with(".bak")
+                })
             })
             .map(|e| e.path())
             .collect();

@@ -145,7 +145,14 @@ fn create_new_identity(
     };
 
     // Setup strategy-specific infrastructure
-    let mut output = setup_strategy_infrastructure(opts, ctx, &email, &user_name, strategy_type, ssh_key_path.as_deref())?;
+    let mut output = setup_strategy_infrastructure(
+        opts,
+        ctx,
+        &email,
+        &user_name,
+        strategy_type,
+        ssh_key_path.as_deref(),
+    )?;
 
     config.set_identity(opts.name.clone(), identity_config);
 
@@ -181,12 +188,13 @@ fn add_strategy_variant(
     let strategy_type_str = strategy_type.to_string();
 
     // Get existing identity
-    let identity_config = config
-        .identities
-        .get_mut(&opts.name)
-        .ok_or_else(|| Error::IdentityNotFound {
-            name: opts.name.clone(),
-        })?;
+    let identity_config =
+        config
+            .identities
+            .get_mut(&opts.name)
+            .ok_or_else(|| Error::IdentityNotFound {
+                name: opts.name.clone(),
+            })?;
 
     // Migrate legacy strategies if needed
     identity_config.migrate_legacy_strategies();
@@ -300,18 +308,12 @@ fn setup_strategy_infrastructure(
 ) -> Result<Output> {
     use crate::io::git_config;
 
-    let mut output = Output::success(format!(
-        "Added {} strategy successfully",
-        strategy_type
-    ));
+    let mut output = Output::success(format!("Added {} strategy successfully", strategy_type));
 
     match strategy_type {
         StrategyType::SshAlias => {
             if let Some(key_path) = ssh_key_path {
-                ctx.info(&format!(
-                    "SSH hostname aliasing enabled for {}",
-                    opts.name
-                ));
+                ctx.info(&format!("SSH hostname aliasing enabled for {}", opts.name));
                 output = output.with_detail("ssh_key", key_path);
             }
         }

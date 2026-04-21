@@ -424,9 +424,8 @@ impl IdentityConfig {
         let discriminator = Self::get_strategy_discriminator(&strategy);
 
         // Remove existing strategy with same discriminator
-        self.strategies.retain(|s| {
-            Self::get_strategy_discriminator(s) != discriminator
-        });
+        self.strategies
+            .retain(|s| Self::get_strategy_discriminator(s) != discriminator);
 
         // Add new strategy
         self.strategies.push(strategy);
@@ -482,11 +481,8 @@ impl IdentityConfig {
 
     /// Get all enabled strategies sorted by priority
     pub fn get_sorted_strategies(&self) -> Vec<&StrategyConfig> {
-        let mut strategies: Vec<&StrategyConfig> = self
-            .strategies
-            .iter()
-            .filter(|s| s.enabled)
-            .collect();
+        let mut strategies: Vec<&StrategyConfig> =
+            self.strategies.iter().filter(|s| s.enabled).collect();
 
         strategies.sort_by_key(|s| s.priority);
         strategies
@@ -531,14 +527,12 @@ impl IdentityConfig {
                         .unwrap_or(true);
                 }
                 "conditional" => {
-                    strategy.directory = self.conditional.as_ref().and_then(|c| c.directory.clone());
+                    strategy.directory =
+                        self.conditional.as_ref().and_then(|c| c.directory.clone());
                 }
                 "url" => {
                     strategy.scope = None; // Legacy url_rewrite didn't have scope
-                    strategy.patterns = self
-                        .url_rewrite
-                        .as_ref()
-                        .and_then(|u| u.patterns.clone());
+                    strategy.patterns = self.url_rewrite.as_ref().and_then(|u| u.patterns.clone());
                 }
                 _ => {}
             }

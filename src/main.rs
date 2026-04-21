@@ -14,10 +14,7 @@ use gt::cmd;
 
 fn main() -> Result<()> {
     // Initialize logging
-    env_logger::Builder::from_env(
-        env_logger::Env::default().default_filter_or("warn"),
-    )
-    .init();
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("warn")).init();
 
     // Forward `gt config <non-native>` (and flag-style invocations) to `git config`
     // before clap sees them, so gt behaves as a superset of git config. clap still
@@ -179,9 +176,7 @@ mod tests {
     #[test]
     fn gt_native_subcommand_with_trailing_help_is_native() {
         // `gt config id --help` should be handled by clap, not forwarded.
-        assert!(
-            detect_git_config_passthrough(&args(&["gt", "config", "id", "--help"])).is_none()
-        );
+        assert!(detect_git_config_passthrough(&args(&["gt", "config", "id", "--help"])).is_none());
     }
 
     #[test]
@@ -192,7 +187,13 @@ mod tests {
     #[test]
     fn global_flags_before_config_are_skipped() {
         assert_eq!(
-            detect_git_config_passthrough(&args(&["gt", "--verbose", "config", "get", "user.email"])),
+            detect_git_config_passthrough(&args(&[
+                "gt",
+                "--verbose",
+                "config",
+                "get",
+                "user.email"
+            ])),
             Some(vec!["get".into(), "user.email".into()]),
         );
     }

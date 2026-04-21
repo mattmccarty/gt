@@ -24,17 +24,21 @@ pub fn execute(opts: &UseOpts, ctx: &Context) -> Result<Output> {
 
     // Clap's `required_unless_present = "clear"` should prevent this, but
     // defensively unwrap so a direct programmatic caller sees a clear error.
-    let identity_name = opts.identity.as_deref().ok_or_else(|| Error::InputRequired {
-        field: "identity".to_string(),
-    })?;
+    let identity_name = opts
+        .identity
+        .as_deref()
+        .ok_or_else(|| Error::InputRequired {
+            field: "identity".to_string(),
+        })?;
 
     // Verify identity exists
-    let identity_config = config
-        .identities
-        .get(identity_name)
-        .ok_or_else(|| Error::IdentityNotFound {
-            name: identity_name.to_string(),
-        })?;
+    let identity_config =
+        config
+            .identities
+            .get(identity_name)
+            .ok_or_else(|| Error::IdentityNotFound {
+                name: identity_name.to_string(),
+            })?;
 
     // Handle conditional (directory-based) setup
     if opts.directory.is_some() || opts.global {
@@ -146,12 +150,11 @@ fn execute_repository(
 /// `gt clone` consults this file when no explicit `--id` is passed.
 fn execute_active_identity(ctx: &Context, identity_name: &str) -> Result<Output> {
     if ctx.dry_run {
-        return Ok(Output::dry_run(format!(
-            "Would set active identity to '{}'",
-            identity_name
-        ))
-        .with_detail("identity", identity_name)
-        .with_detail("scope", "active"));
+        return Ok(
+            Output::dry_run(format!("Would set active identity to '{}'", identity_name))
+                .with_detail("identity", identity_name)
+                .with_detail("scope", "active"),
+        );
     }
 
     let active = ActiveIdentity {
@@ -167,12 +170,11 @@ fn execute_active_identity(ctx: &Context, identity_name: &str) -> Result<Output>
         eprintln!("Clear with: gt config id use --clear");
     }
 
-    Ok(Output::success(format!(
-        "Active identity set to '{}'",
-        identity_name
-    ))
-    .with_detail("identity", identity_name)
-    .with_detail("scope", "active"))
+    Ok(
+        Output::success(format!("Active identity set to '{}'", identity_name))
+            .with_detail("identity", identity_name)
+            .with_detail("scope", "active"),
+    )
 }
 
 /// Remove the active-identity state file.
@@ -236,11 +238,14 @@ fn execute_conditional(
         email: identity_config.email.clone(),
         user_name: identity_config.name.clone(),
         provider: Provider::from_name(&identity_config.provider),
-        ssh: identity_config.ssh.as_ref().map(|s| crate::core::identity::SshConfig {
-            key_path: s.key_path.clone(),
-            key_type: s.key_type.clone(),
-            key_bits: None,
-        }),
+        ssh: identity_config
+            .ssh
+            .as_ref()
+            .map(|s| crate::core::identity::SshConfig {
+                key_path: s.key_path.clone(),
+                key_type: s.key_type.clone(),
+                key_bits: None,
+            }),
         strategy: Some("conditional".to_string()),
     };
 
@@ -370,7 +375,10 @@ fn update_remote_urls_ssh(
         }
 
         let current_url = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        ctx.debug(&format!("Current URL for '{}': {}", remote_name, current_url));
+        ctx.debug(&format!(
+            "Current URL for '{}': {}",
+            remote_name, current_url
+        ));
 
         // Transform URL to use identity-specific SSH host
         let new_url = transform_url(&current_url, identity, provider)?;
@@ -398,7 +406,10 @@ fn update_remote_urls_ssh(
             }
 
             if !ctx.quiet {
-                eprintln!("Updated remote '{}': {} -> {}", remote_name, current_url, new_url);
+                eprintln!(
+                    "Updated remote '{}': {} -> {}",
+                    remote_name, current_url, new_url
+                );
             }
             updated_count += 1;
         } else {
@@ -414,11 +425,7 @@ fn update_remote_urls_ssh(
 }
 
 /// Restore remote URLs to standard provider hostname (for URL rewrite strategy)
-fn restore_remote_urls(
-    repo_path: &PathBuf,
-    provider: &str,
-    ctx: &Context,
-) -> Result<()> {
+fn restore_remote_urls(repo_path: &PathBuf, provider: &str, ctx: &Context) -> Result<()> {
     // Get list of remotes
     let output = Command::new("git")
         .arg("-C")
@@ -462,7 +469,10 @@ fn restore_remote_urls(
         }
 
         let current_url = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        ctx.debug(&format!("Current URL for '{}': {}", remote_name, current_url));
+        ctx.debug(&format!(
+            "Current URL for '{}': {}",
+            remote_name, current_url
+        ));
 
         // Restore URL to standard provider hostname
         let new_url = restore_url(&current_url, provider)?;
@@ -490,7 +500,10 @@ fn restore_remote_urls(
             }
 
             if !ctx.quiet {
-                eprintln!("Restored remote '{}': {} -> {}", remote_name, current_url, new_url);
+                eprintln!(
+                    "Restored remote '{}': {} -> {}",
+                    remote_name, current_url, new_url
+                );
             }
             updated_count += 1;
         } else {

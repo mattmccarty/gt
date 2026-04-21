@@ -288,9 +288,7 @@ impl Error {
             | Error::IdentityValidation { .. } => 3,
 
             // Repository errors
-            Error::NotARepository
-            | Error::NoRemote { .. }
-            | Error::RepoNotFound { .. } => 4,
+            Error::NotARepository | Error::NoRemote { .. } | Error::RepoNotFound { .. } => 4,
 
             // SSH errors
             Error::SshKeyNotFound { .. }
@@ -322,9 +320,7 @@ impl Error {
             Error::ToolNotFound { .. } | Error::ToolFailed { .. } => 11,
 
             // Push schedule errors
-            Error::PushScheduled { .. }
-            | Error::ScheduleNotFound
-            | Error::ScheduleOutdated => 12,
+            Error::PushScheduled { .. } | Error::ScheduleNotFound | Error::ScheduleOutdated => 12,
         }
     }
 
@@ -333,9 +329,7 @@ impl Error {
     pub fn suggestion(&self) -> Option<&str> {
         match self {
             Error::ConfigNotFound { .. } => Some("Run 'gitid init' to create configuration"),
-            Error::IdentityNotFound { .. } => {
-                Some("Run 'gitid list' to see available identities")
-            }
+            Error::IdentityNotFound { .. } => Some("Run 'gitid list' to see available identities"),
             Error::NotARepository => Some("Run from inside a Git repository"),
             Error::SshKeyNotFound { .. } => Some("Run 'gitid key generate <identity>'"),
             Error::ToolNotFound { tool } if tool == "ssh-keygen" => {

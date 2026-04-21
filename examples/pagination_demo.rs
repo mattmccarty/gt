@@ -5,7 +5,7 @@
 //!
 //! Run with: cargo run --example pagination_demo
 
-use gt::util::{paginate_output, execute_git_command_paginated};
+use gt::util::{execute_git_command_paginated, paginate_output};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Example 1: Basic pagination with custom content ===\n");

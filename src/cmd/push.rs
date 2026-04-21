@@ -15,9 +15,7 @@ use crate::cli::output::Output;
 use crate::cmd::Context;
 use crate::error::{Error, Result};
 use crate::io::git_hooks::{install_pre_push_hook, is_git_repo, remove_pre_push_hook};
-use crate::io::schedule_config::{
-    LocalScheduleCache, Schedule, ScheduleConfig, ScheduleStatus,
-};
+use crate::io::schedule_config::{LocalScheduleCache, Schedule, ScheduleConfig, ScheduleStatus};
 
 /// Execute the push command
 pub fn execute(opts: &PushOpts, ctx: &Context) -> Result<Output> {
@@ -68,7 +66,10 @@ fn list_schedules(_ctx: &Context) -> Result<Output> {
         return Ok(Output::success("No scheduled pushes"));
     }
 
-    let mut output = Output::success(format!("Found {} scheduled push(es)", config.schedules.len()));
+    let mut output = Output::success(format!(
+        "Found {} scheduled push(es)",
+        config.schedules.len()
+    ));
 
     for schedule in config.list_schedules() {
         let status_str = match schedule.status {
@@ -83,15 +84,8 @@ fn list_schedules(_ctx: &Context) -> Result<Output> {
             .and_then(|n| n.to_str())
             .unwrap_or("unknown");
 
-        let detail_key = format!(
-            "{}/{} ({})",
-            repo_name, schedule.branch, status_str
-        );
-        let detail_value = format!(
-            "{} - commit {}",
-            time_str,
-            &schedule.commit_sha[..7]
-        );
+        let detail_key = format!("{}/{} ({})", repo_name, schedule.branch, status_str);
+        let detail_value = format!("{} - commit {}", time_str, &schedule.commit_sha[..7]);
 
         output = output.with_detail(detail_key, detail_value);
     }

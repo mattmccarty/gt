@@ -93,7 +93,9 @@ pub fn execute(opts: &StatusOpts, ctx: &Context) -> Result<Output> {
     // Try to match email to a known identity (if config exists)
     let matched_identity = if let Some(ref email) = status.email {
         if let Some(config) = ctx.config.as_ref() {
-            config.identities.iter()
+            config
+                .identities
+                .iter()
                 .find(|(_, identity_config)| identity_config.email == *email)
                 .map(|(name, _)| name.clone())
         } else {
@@ -108,7 +110,10 @@ pub fn execute(opts: &StatusOpts, ctx: &Context) -> Result<Output> {
         if status.in_repository {
             Output::success(format!("Using identity '{}' ({})", identity, status.level))
         } else {
-            Output::success(format!("Would use identity '{}' ({})", identity, status.level))
+            Output::success(format!(
+                "Would use identity '{}' ({})",
+                identity, status.level
+            ))
         }
     } else if let Some(ref email) = status.email {
         Output::success(format!("Using unmanaged identity: {}", email))
@@ -269,7 +274,10 @@ fn detect_conditional_identity(dir: &Path, ctx: &Context) -> Result<Option<Ident
     ctx.debug(&format!("Checking directory: {}", dir_expanded.display()));
 
     for include in &includes {
-        ctx.debug(&format!("  Checking include: {} -> {}", include.condition, include.path));
+        ctx.debug(&format!(
+            "  Checking include: {} -> {}",
+            include.condition, include.path
+        ));
         if let Some(pattern) = include.condition.strip_prefix("gitdir:") {
             ctx.debug(&format!("    Pattern: {}", pattern));
             if path_matches_gitdir_pattern(&dir_expanded, pattern)? {

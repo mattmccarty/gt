@@ -9,8 +9,8 @@ use crate::cmd::Context;
 use crate::error::{Error, Result};
 use crate::io::schedule_config::ScheduleConfig;
 use crate::util::{
-    execute_git_command, execute_git_command_paginated, get_head_commit_date,
-    paginate_output, parse_shorthand_date, random_date_after,
+    execute_git_command, execute_git_command_paginated, get_head_commit_date, paginate_output,
+    parse_shorthand_date, random_date_after,
 };
 use chrono::{DateTime, Local, Utc};
 use std::process::Command;
@@ -28,7 +28,8 @@ pub fn execute(opts: &CommitOpts, ctx: &Context) -> Result<Output> {
         let header = vec![
             "gt commit - Git commit with enhanced date support".to_string(),
             String::new(),
-            "This command passes through all arguments to 'git commit', but adds support".to_string(),
+            "This command passes through all arguments to 'git commit', but adds support"
+                .to_string(),
             "for shorthand date syntax in the --date flag.".to_string(),
             String::new(),
             "Shorthand date formats:".to_string(),
@@ -40,9 +41,12 @@ pub fn execute(opts: &CommitOpts, ctx: &Context) -> Result<Output> {
             "  -Nw, Nw   - N weeks ago or from now (e.g., -1w, 1w)".to_string(),
             String::new(),
             "Examples:".to_string(),
-            "  gt commit -m \"message\" --date=-1h    # Commit with timestamp 1 hour ago".to_string(),
-            "  gt commit -m \"message\" --date=30m    # Commit with timestamp 30 minutes from now".to_string(),
-            "  gt commit -m \"message\" --date=2d     # Commit with timestamp 2 days from now".to_string(),
+            "  gt commit -m \"message\" --date=-1h    # Commit with timestamp 1 hour ago"
+                .to_string(),
+            "  gt commit -m \"message\" --date=30m    # Commit with timestamp 30 minutes from now"
+                .to_string(),
+            "  gt commit -m \"message\" --date=2d     # Commit with timestamp 2 days from now"
+                .to_string(),
             "  gt commit -m \"message\" --date=now    # Commit with current timestamp".to_string(),
             String::new(),
             "=".repeat(80),
@@ -185,7 +189,10 @@ pub fn execute(opts: &CommitOpts, ctx: &Context) -> Result<Output> {
         // Try to parse as shorthand date
         match parse_shorthand_date(&date_val) {
             Ok(parsed_date) => {
-                ctx.debug(&format!("Parsed shorthand date '{}' to '{}'", date_val, parsed_date));
+                ctx.debug(&format!(
+                    "Parsed shorthand date '{}' to '{}'",
+                    date_val, parsed_date
+                ));
                 // Add the transformed date
                 git_args.push("--date".to_string());
                 git_args.push(parsed_date);
@@ -217,7 +224,11 @@ pub fn execute(opts: &CommitOpts, ctx: &Context) -> Result<Output> {
 /// Execute the commit list command
 ///
 /// Shows commits sorted from earliest to latest with schedule information
-pub fn execute_list(opts: &CommitListOpts, parent_opts: &CommitOpts, ctx: &Context) -> Result<Output> {
+pub fn execute_list(
+    opts: &CommitListOpts,
+    parent_opts: &CommitOpts,
+    ctx: &Context,
+) -> Result<Output> {
     ctx.debug("Executing commit list");
 
     // Get current repository path
@@ -281,16 +292,20 @@ pub fn execute_list(opts: &CommitListOpts, parent_opts: &CommitOpts, ctx: &Conte
 
     let args_refs: Vec<&str> = args.iter().map(|s| s.as_str()).collect();
 
-    let log_output = Command::new("git")
-        .args(&args_refs)
-        .output()
-        .map_err(|e| Error::GitCommand {
-            message: format!("Failed to get commit log: {}", e),
-        })?;
+    let log_output =
+        Command::new("git")
+            .args(&args_refs)
+            .output()
+            .map_err(|e| Error::GitCommand {
+                message: format!("Failed to get commit log: {}", e),
+            })?;
 
     if !log_output.status.success() {
         return Err(Error::GitCommand {
-            message: format!("git log failed: {}", String::from_utf8_lossy(&log_output.stderr)),
+            message: format!(
+                "git log failed: {}",
+                String::from_utf8_lossy(&log_output.stderr)
+            ),
         });
     }
 
@@ -330,7 +345,10 @@ pub fn execute_list(opts: &CommitListOpts, parent_opts: &CommitOpts, ctx: &Conte
         let schedule_info = if let Some(sched) = &schedule {
             if sched.commit_sha.starts_with(short_sha) || sha.starts_with(&sched.commit_sha) {
                 let sched_local = sched.scheduled_time.with_timezone(&Local);
-                format!("  SCHEDULED: {}", sched_local.format("%Y-%m-%d %I:%M:%S%P %z"))
+                format!(
+                    "  SCHEDULED: {}",
+                    sched_local.format("%Y-%m-%d %I:%M:%S%P %z")
+                )
             } else {
                 String::new()
             }
@@ -338,12 +356,7 @@ pub fn execute_list(opts: &CommitListOpts, parent_opts: &CommitOpts, ctx: &Conte
             String::new()
         };
 
-        lines.push(format!(
-            "{} {} {}",
-            short_sha,
-            formatted_date,
-            subject
-        ));
+        lines.push(format!("{} {} {}", short_sha, formatted_date, subject));
 
         if !schedule_info.is_empty() {
             lines.push(schedule_info);

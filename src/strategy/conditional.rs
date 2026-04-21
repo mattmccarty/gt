@@ -107,11 +107,7 @@ impl ConditionalStrategy {
     /// Add conditional include to ~/.gitconfig
     ///
     /// Adds: [includeIf "gitdir:DIRECTORY/"] path = CONFIG_PATH
-    pub fn add_conditional_include(
-        &self,
-        directory: &str,
-        identity_name: &str,
-    ) -> Result<()> {
+    pub fn add_conditional_include(&self, directory: &str, identity_name: &str) -> Result<()> {
         let config_path = self.identity_config_path(identity_name)?;
         let config_path_str = path::contract_tilde(&config_path);
 
@@ -359,7 +355,8 @@ impl Strategy for ConditionalStrategy {
     }
 
     fn setup_requirements(&self) -> Vec<SetupStep> {
-        let config_dir_exists = self.config_dir_expanded()
+        let config_dir_exists = self
+            .config_dir_expanded()
             .map(|p| p.exists())
             .unwrap_or(false);
 

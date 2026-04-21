@@ -60,7 +60,10 @@ impl TestEnv {
     pub fn create_ssh_config(&self, content: &str) -> PathBuf {
         let path = self.ssh_dir.join("config");
         // SAFETY: Path is guaranteed to be in temp directory
-        assert!(path.starts_with(&self.home), "SAFETY: Path must be in temp directory");
+        assert!(
+            path.starts_with(&self.home),
+            "SAFETY: Path must be in temp directory"
+        );
         std::fs::write(&path, content).expect("Failed to write SSH config");
         path
     }
@@ -69,7 +72,10 @@ impl TestEnv {
     pub fn create_gt_config(&self, content: &str) -> PathBuf {
         let path = self.config_dir.join("config.toml");
         // SAFETY: Path is guaranteed to be in temp directory
-        assert!(path.starts_with(&self.home), "SAFETY: Path must be in temp directory");
+        assert!(
+            path.starts_with(&self.home),
+            "SAFETY: Path must be in temp directory"
+        );
         std::fs::write(&path, content).expect("Failed to write gt config");
         path
     }
@@ -92,14 +98,23 @@ impl TestEnv {
         let pub_path = self.ssh_dir.join(format!("{}.pub", name));
 
         // SAFETY: Verify paths are in temp directory
-        assert!(key_path.starts_with(&self.home), "SAFETY: Key must be in temp directory");
-        assert!(pub_path.starts_with(&self.home), "SAFETY: Key must be in temp directory");
+        assert!(
+            key_path.starts_with(&self.home),
+            "SAFETY: Key must be in temp directory"
+        );
+        assert!(
+            pub_path.starts_with(&self.home),
+            "SAFETY: Key must be in temp directory"
+        );
 
         // Write FAKE keys (not real cryptographic material)
         std::fs::write(&key_path, "-----BEGIN OPENSSH PRIVATE KEY-----\nFAKE_TEST_KEY_NOT_REAL\n-----END OPENSSH PRIVATE KEY-----\n")
             .expect("Failed to write key");
-        std::fs::write(&pub_path, "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAFAKETEST test@test")
-            .expect("Failed to write public key");
+        std::fs::write(
+            &pub_path,
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAFAKETEST test@test",
+        )
+        .expect("Failed to write public key");
 
         // Set proper permissions (Unix only)
         #[cfg(unix)]
@@ -109,8 +124,7 @@ impl TestEnv {
                 .expect("Failed to get metadata")
                 .permissions();
             perms.set_mode(0o600);
-            std::fs::set_permissions(&key_path, perms)
-                .expect("Failed to set permissions");
+            std::fs::set_permissions(&key_path, perms).expect("Failed to set permissions");
         }
 
         key_path
@@ -122,7 +136,10 @@ impl TestEnv {
         let git_dir = repo_path.join(".git");
 
         // SAFETY: Verify path is in temp directory
-        assert!(repo_path.starts_with(&self.home), "SAFETY: Repo must be in temp directory");
+        assert!(
+            repo_path.starts_with(&self.home),
+            "SAFETY: Repo must be in temp directory"
+        );
 
         std::fs::create_dir_all(&git_dir).expect("Failed to create repo");
 
@@ -198,17 +215,22 @@ mod tests {
         let env = TestEnv::new();
 
         // Verify the environment is in a temp directory
-        assert!(env.home.to_str().unwrap().contains("tmp") ||
-                env.home.to_str().unwrap().contains("temp"),
-                "Test environment should be in a temp directory");
+        assert!(
+            env.home.to_str().unwrap().contains("tmp")
+                || env.home.to_str().unwrap().contains("temp"),
+            "Test environment should be in a temp directory"
+        );
 
         // Verify it's NOT the real home
         let real_home = std::env::var("HOME")
             .or_else(|_| std::env::var("USERPROFILE"))
             .ok();
         if let Some(real_home_path) = real_home {
-            assert_ne!(env.home.to_str().unwrap(), real_home_path,
-                      "Test must NOT use real home directory!");
+            assert_ne!(
+                env.home.to_str().unwrap(),
+                real_home_path,
+                "Test must NOT use real home directory!"
+            );
         }
     }
 

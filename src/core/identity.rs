@@ -223,9 +223,7 @@ mod tests {
         assert!(result.is_err());
 
         // Missing email
-        let result = Identity::builder("work")
-            .name("Work User")
-            .build();
+        let result = Identity::builder("work").name("Work User").build();
         assert!(result.is_err());
     }
 

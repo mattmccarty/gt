@@ -15,7 +15,15 @@ pub fn execute(opts: &KeyOpts, ctx: &Context) -> Result<Output> {
             email,
             passphrase,
             force,
-        } => generate(identity, key_type, *bits, email.as_deref(), passphrase.as_deref(), *force, ctx),
+        } => generate(
+            identity,
+            key_type,
+            *bits,
+            email.as_deref(),
+            passphrase.as_deref(),
+            *force,
+            ctx,
+        ),
         KeyCommands::List { all, identity } => list(*all, identity.as_deref(), ctx),
         KeyCommands::Add { identity, key_path } => add(identity, key_path, ctx),
         KeyCommands::Remove { identity } => remove(identity, ctx),
@@ -54,9 +62,7 @@ fn generate(
         id.key_path
             .as_ref()
             .map(|p| PathBuf::from(p))
-            .unwrap_or_else(|| {
-                PathBuf::from(format!("~/.ssh/id_gt_{}", identity))
-            })
+            .unwrap_or_else(|| PathBuf::from(format!("~/.ssh/id_gt_{}", identity)))
     } else {
         // New identity, create default path
         PathBuf::from(format!("~/.ssh/id_gt_{}", identity))
@@ -109,11 +115,17 @@ fn generate(
         let pub_key_path = expanded_key_path.with_extension("pub");
         if expanded_key_path.exists() {
             std::fs::remove_file(&expanded_key_path)?;
-            ctx.debug(&format!("Removed existing private key: {}", expanded_key_path.display()));
+            ctx.debug(&format!(
+                "Removed existing private key: {}",
+                expanded_key_path.display()
+            ));
         }
         if pub_key_path.exists() {
             std::fs::remove_file(&pub_key_path)?;
-            ctx.debug(&format!("Removed existing public key: {}", pub_key_path.display()));
+            ctx.debug(&format!(
+                "Removed existing public key: {}",
+                pub_key_path.display()
+            ));
         }
     }
 
@@ -184,9 +196,11 @@ fn generate(
         }
     }
 
-    Ok(Output::success(format!("SSH key generated for '{}'", identity))
-        .with_detail("key_path", &expanded_key_path.to_string_lossy().to_string())
-        .with_detail("key_type", &key_type.to_string()))
+    Ok(
+        Output::success(format!("SSH key generated for '{}'", identity))
+            .with_detail("key_path", &expanded_key_path.to_string_lossy().to_string())
+            .with_detail("key_type", &key_type.to_string()),
+    )
 }
 
 fn list(all: bool, identity: Option<&str>, ctx: &Context) -> Result<Output> {
@@ -268,12 +282,11 @@ fn show(identity: &str, ctx: &Context) -> Result<Output> {
         })?;
 
     // Get the key path
-    let key_path = found_identity
-        .key_path
-        .as_ref()
-        .ok_or_else(|| crate::error::Error::IdentityValidation {
+    let key_path = found_identity.key_path.as_ref().ok_or_else(|| {
+        crate::error::Error::IdentityValidation {
             message: format!("No SSH key associated with identity '{}'", identity),
-        })?;
+        }
+    })?;
 
     // Expand tilde and get public key path
     let key_path_buf = PathBuf::from(key_path);

@@ -47,9 +47,7 @@ fn test_ssh_config_is_isolated() {
     );
 
     // Verify real SSH config is NOT modified
-    let real_ssh_config = dirs::home_dir()
-        .unwrap()
-        .join(".ssh/config");
+    let real_ssh_config = dirs::home_dir().unwrap().join(".ssh/config");
 
     if real_ssh_config.exists() {
         let real_content = std::fs::read_to_string(&real_ssh_config).unwrap();

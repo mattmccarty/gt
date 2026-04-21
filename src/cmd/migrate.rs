@@ -45,9 +45,7 @@ fn migrate_legacy(opts: &MigrateOpts, ctx: &Context) -> Result<Output> {
         let identity = legacy_identities
             .iter()
             .find(|i| i.name == *name)
-            .ok_or_else(|| Error::IdentityNotFound {
-                name: name.clone(),
-            })?;
+            .ok_or_else(|| Error::IdentityNotFound { name: name.clone() })?;
         vec![*identity]
     } else {
         // Interactive selection
@@ -56,7 +54,8 @@ fn migrate_legacy(opts: &MigrateOpts, ctx: &Context) -> Result<Output> {
 
     // Show what will be migrated
     if !ctx.quiet {
-        eprintln!("\nWill migrate {} identit{}:",
+        eprintln!(
+            "\nWill migrate {} identit{}:",
             to_migrate.len(),
             if to_migrate.len() == 1 { "y" } else { "ies" }
         );
@@ -212,10 +211,7 @@ fn migrate_single_identity(identity: &detector::DetectedIdentity, ctx: &Context)
                     message: "Invalid key path".to_string(),
                 })?;
 
-            let new_key_path = key_path_expanded
-                .parent()
-                .unwrap()
-                .join(&new_key_name);
+            let new_key_path = key_path_expanded.parent().unwrap().join(&new_key_name);
 
             ctx.debug(&format!(
                 "Renaming SSH key: {} -> {}",
@@ -240,7 +236,10 @@ fn migrate_single_identity(identity: &detector::DetectedIdentity, ctx: &Context)
                 new_key_path.to_string_lossy().to_string()
             }
         } else {
-            ctx.debug(&format!("SSH key not found at {}, updating path only", key_path));
+            ctx.debug(&format!(
+                "SSH key not found at {}, updating path only",
+                key_path
+            ));
             key_path.replace("id_gitid_", "id_gt_")
         }
     } else {

@@ -117,7 +117,10 @@ impl SshHostEntry {
             lines.push(format!("{}IdentitiesOnly {}", indent, value));
         }
         if let Some(ref preferred_auth) = self.preferred_auth {
-            lines.push(format!("{}PreferredAuthentications {}", indent, preferred_auth));
+            lines.push(format!(
+                "{}PreferredAuthentications {}",
+                indent, preferred_auth
+            ));
         }
         for (key, value) in &self.other {
             lines.push(format!("{}{} {}", indent, key, value));
@@ -350,7 +353,9 @@ impl SshConfig {
                     GIT_PROVIDERS.iter().any(|provider| hostname == provider)
                 } else {
                     // If no explicit HostName, check if the Host itself is a provider
-                    GIT_PROVIDERS.iter().any(|provider| h.host.contains(provider))
+                    GIT_PROVIDERS
+                        .iter()
+                        .any(|provider| h.host.contains(provider))
                 }
             })
             .collect()

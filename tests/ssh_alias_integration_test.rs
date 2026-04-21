@@ -113,14 +113,20 @@ fn test_ensure_ssh_config_creates_entry_in_temp_dir() {
         .with_preferred_auth("publickey");
 
     config.upsert_host(entry);
-    config.save(&ssh_config_path).expect("Failed to save SSH config");
+    config
+        .save(&ssh_config_path)
+        .expect("Failed to save SSH config");
 
     // Verify config exists
     assert!(ssh_config_path.exists(), "SSH config should exist");
 
     // Load and verify
-    let loaded = gt::io::ssh_config::SshConfig::load(&ssh_config_path).expect("Failed to load config");
-    assert!(loaded.has_host("gt-work.github.com"), "Config should have gt-work entry");
+    let loaded =
+        gt::io::ssh_config::SshConfig::load(&ssh_config_path).expect("Failed to load config");
+    assert!(
+        loaded.has_host("gt-work.github.com"),
+        "Config should have gt-work entry"
+    );
 
     println!("✓ SSH config entry created in isolated environment");
 }
@@ -153,7 +159,11 @@ fn test_setup_requirements() {
     assert!(!requirements.is_empty(), "Should have setup requirements");
 
     for req in &requirements {
-        println!("  - {}: {}", req.description, if req.complete { "✓" } else { "✗" });
+        println!(
+            "  - {}: {}",
+            req.description,
+            if req.complete { "✓" } else { "✗" }
+        );
     }
 
     println!("✓ Setup requirements checked");

@@ -125,9 +125,22 @@ fn list_from_config(
     }
 
     let mut builder = if opts.show_keys {
-        TableBuilder::new(vec!["name", "email", "strategy", "scope/directory", "provider", "key"])
+        TableBuilder::new(vec![
+            "name",
+            "email",
+            "strategy",
+            "scope/directory",
+            "provider",
+            "key",
+        ])
     } else {
-        TableBuilder::new(vec!["name", "email", "strategy", "scope/directory", "provider"])
+        TableBuilder::new(vec![
+            "name",
+            "email",
+            "strategy",
+            "scope/directory",
+            "provider",
+        ])
     };
 
     let mut total_configs = 0;
@@ -263,12 +276,7 @@ fn list_from_detected(
 ) -> Result<Output> {
     let mut builder = if opts.show_keys {
         TableBuilder::new(vec![
-            "name",
-            "provider",
-            "email",
-            "strategy",
-            "key",
-            "source",
+            "name", "provider", "email", "strategy", "key", "source",
         ])
     } else {
         TableBuilder::new(vec!["name", "provider", "email", "strategy", "source"])
@@ -549,6 +557,9 @@ fn list_merged(
     let total_identities = config_identities.len() + unmanaged_count;
     Ok(builder.build(format!(
         "Found {} identities ({} configurations, {} managed, {} unmanaged)",
-        total_identities, total_configs, config_identities.len(), unmanaged_count
+        total_identities,
+        total_configs,
+        config_identities.len(),
+        unmanaged_count
     )))
 }
