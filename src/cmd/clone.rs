@@ -128,6 +128,25 @@ pub fn execute(opts: &CloneOpts, ctx: &Context) -> Result<Output> {
         eprintln!("✓ Configured git user.email = {}", identity_config.email);
     }
 
+    // Persist `core.sshCommand` locally so subsequent `git push` / `fetch`
+    // in this repo use the identity's key. Without this, the cloned repo
+    // falls back to ambient SSH resolution (including any `gitdir:`
+    // conditional include for the parent directory), which is exactly the
+    // mismatch that motivated carrying the active identity in the first
+    // place. The clone subprocess got the right key via `GIT_SSH_COMMAND`,
+    // but that env var is not inherited by later invocations.
+    if let Some(key_path) = identity_config
+        .ssh
+        .as_ref()
+        .and_then(|s| s.key_path.as_deref())
+    {
+        let ssh_command = build_git_ssh_command(key_path);
+        set_git_config(&dest_path, "core.sshCommand", &ssh_command, ctx)?;
+        if !ctx.quiet {
+            eprintln!("✓ Configured git core.sshCommand");
+        }
+    }
+
     Ok(Output::success(format!(
         "Repository cloned successfully with identity '{}'",
         identity_name

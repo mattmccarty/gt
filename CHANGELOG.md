@@ -12,6 +12,10 @@ including how to move `Unreleased` into a version section at release time.
 
 ## [Unreleased]
 
+### Fixed
+
+- `gt clone` now writes `core.sshCommand` to the cloned repo's local git config so subsequent `git push`, `fetch`, and `pull` use the identity's SSH key. Previously only `user.name` and `user.email` were written; SSH authentication for ongoing work fell back to ambient resolution, which surfaced as push failures when the parent directory's `gitdir:` conditional include pointed at a different identity. The initial clone already used the right key via `GIT_SSH_COMMAND`; the fix is to persist the selection in the repo config so it survives.
+
 ## [0.3.0] - 2026-04-21
 
 ### Added
